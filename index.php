@@ -1,0 +1,88 @@
+<?php
+require_once __DIR__ . '/config/config.php';
+?>
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platforma UnD - Statistici Șomaj</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="public/css/style.css" />
+</head>
+<body>
+
+<div class="container" id="continut-pdf">
+    <h1>Platforma UnD - Analiză Șomaj România</h1>
+
+    <div class="filtre" data-html2canvas-ignore>
+        <div class="filtru-item">
+            <label>Județ:</label>
+            <input type="text" id="filtru-judet" placeholder="Ex: IASI">
+        </div>
+        <div class="filtru-item">
+            <label>De la:</label>
+            <div style="display:flex; gap:6px;">
+                <input type="number" id="filtru-luna-start" min="1" max="12" value="1" placeholder="Luna" style="width:65px;">
+                <input type="number" id="filtru-an-start" min="2000" max="2026" value="2023" placeholder="An" style="width:75px;">
+            </div>
+        </div>
+        <div class="filtru-item">
+            <label>Până la:</label>
+            <div style="display:flex; gap:6px;">
+                <input type="number" id="filtru-luna-stop" min="1" max="12" value="12" placeholder="Luna" style="width:65px;">
+                <input type="number" id="filtru-an-stop" min="2000" max="2026" value="2024" placeholder="An" style="width:75px;">
+            </div>
+        </div>
+        <div class="filtru-item">
+            <label>Mediu:</label>
+            <select id="filtru-mediu">
+                <option value="">Toate</option>
+                <option value="urban">Urban</option>
+                <option value="rural">Rural</option>
+            </select>
+        </div>
+        <div class="filtru-item" style="justify-content: flex-end;">
+            <button class="btn-aplica" onclick="aplicaFiltre()">Aplică Filtrele</button>
+        </div>
+    </div>
+
+    <div class="vizualizare-split">
+        <div class="partea-stanga">
+            <div id="harta"></div>
+        </div>
+
+        <div class="partea-dreapta">
+            <div class="view-toggles" data-html2canvas-ignore>
+                <button class="btn-view active" onclick="schimbaGrafic('bar', this)">Grafic Județe</button>
+                <button class="btn-view" onclick="schimbaGrafic('pie', this)">Distribuție Mediu</button>
+                <button class="btn-view" onclick="schimbaGrafic('varste', this)">Grupe Vârstă</button>
+            </div>
+
+            <div id="container-bar" class="grafic-box">
+                <canvas id="graficSomaj"></canvas>
+            </div>
+
+            <div id="container-pie" class="grafic-box hidden">
+                <canvas id="graficPie"></canvas>
+            </div>
+
+            <div id="container-varste" class="grafic-box hidden">
+                <canvas id="graficVarste"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="export-box" data-html2canvas-ignore>
+        <button class="btn-export btn-csv" onclick="exportCSV()">Exportă CSV</button>
+        <button class="btn-export btn-svg" onclick="exportSVG()">Exportă SVG</button>
+        <button class="btn-export btn-pdf" onclick="exportPDF()">Exportă PDF</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="public/js/app.js"></script>
+</body>
+</html>

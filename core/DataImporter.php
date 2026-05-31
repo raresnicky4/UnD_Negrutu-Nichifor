@@ -22,9 +22,12 @@ class DataImporter {
         $luna = $lunaStart;
         while ($an < $anStop || ($an === $anStop && $luna <= $lunaStop)) {
             if (!$this->existaDate($an, $luna)) {
-                $this->stergeDate($an, $luna);
-                Cache::clear();
-                $this->importaLuna($an, $luna);
+                $dataLuna = mktime(0, 0, 0, $luna, 1, $an);
+                if ($dataLuna <= time()) {
+                    $this->stergeDate($an, $luna);
+                    Cache::clear();
+                    $this->importaLuna($an, $luna);
+                }
             }
             $luna++;
             if ($luna > 12) { $luna = 1; $an++; }
@@ -45,7 +48,7 @@ class DataImporter {
     private function importaLuna(int $an, int $luna): void {
         $numeLuna = $this->luniRo[$luna];
         $apiUrl = "https://data.gov.ro/api/3/action/package_search?q=somaj+{$numeLuna}+{$an}&rows=10";
-        $context = stream_context_create(['http' => ['header' => 'User-Agent: Mozilla/5.0', 'timeout' => 15]]);
+        $context = stream_context_create(['http' => ['header' => 'User-Agent: Mozilla/5.0', 'timeout' => 5]]);
 
         $response = @file_get_contents($apiUrl, false, $context);
         if (!$response) return;

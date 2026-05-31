@@ -230,15 +230,88 @@ function exportSVG() {
 }
 
 function exportPDF() {
-    const element = document.getElementById('continut-pdf');
-    document.querySelector('.view-toggles').style.display = 'none';
-    html2pdf().set({
-        margin: 10,
-        filename: 'raport_und.pdf',
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
-    }).from(element).save().then(() => {
-        document.querySelector('.view-toggles').style.display = 'flex';
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF('landscape', 'mm', 'a4');
+
+    function graficPeCanvas(tip, labels, datasets, titlu, callback) {
+        const tmpCanvas = document.createElement('canvas');
+        tmpCanvas.width = 1200;
+        tmpCanvas.height = 600;
+        document.body.appendChild(tmpCanvas);
+
+        const ctx = tmpCanvas.getContext('2d');
+        ctx.fillStyle = 'white';
+        ctx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
+
+        const chart = new Chart(tmpCanvas, {
+            type: tip,
+            data: { labels, datasets },
+            plugins: [{
+                id: 'customBackground',
+                beforeDraw: (chart) => {
+                    const ctx = chart.ctx;
+                    ctx.save();
+                    ctx.fillStyle = 'white';
+                    ctx.fillRect(0, 0, chart.width, chart.height);
+                    ctx.restore();
+                }
+            }],
+            options: {
+                responsive: false,
+                animation: { duration: 0 },
+                plugins: { title: { display: true, text: titlu } },
+                scales: tip === 'pie' ? {} : { y: { beginAtZero: true } }
+            }
+        });
+
+        setTimeout(() => {
+            const imgData = tmpCanvas.toDataURL('image/jpeg', 0.98);
+            chart.destroy();
+            document.body.removeChild(tmpCanvas);
+            callback(imgData);
+        }, 200);
+    }
+
+    // Extrage datele din graficele existente
+    const labelsBar = grafic.data.labels;
+    const datasetsBar = grafic.data.datasets;
+    const labelsPie = graficPie.data.labels;
+    const datasetsPie = graficPie.data.datasets;
+    const labelsVarste = graficVarste.data.labels;
+    const datasetsVarste = graficVarste.data.datasets;
+
+    graficPeCanvas('bar', labelsBar, datasetsBar, 'Someri pe Judete', (img1) => {
+        doc.setFontSize(16);
+        doc.text('Someri pe Judete', 10, 15);
+        doc.addImage(img1, 'JPEG', 10, 25, 270, 150);
+
+        doc.addPage();
+        graficPeCanvas('pie', labelsPie, datasetsPie, 'Distributie Urban vs Rural', (img2) => {
+            doc.setFontSize(16);
+            doc.text('Distributie Urban vs Rural', 10, 15);
+            doc.addImage(img2, 'JPEG', 10, 25, 270, 150);
+
+            doc.addPage();
+            graficPeCanvas('bar', labelsVarste, datasetsVarste, 'Distributie pe Grupe de Varsta', (img3) => {
+                doc.setFontSize(16);
+                doc.text('Distributie pe Grupe de Varsta', 10, 15);
+                doc.addImage(img3, 'JPEG', 10, 25, 270, 150);
+
+                doc.save('raport_und.pdf');
+            });
+        });
     });
+}
+function exportJSON() {
+    const anStart   = document.getElementById('filtru-an-start').value;
+    const lunaStart = document.getElementById('filtru-luna-start').value;
+    const anStop    = document.getElementById('filtru-an-stop').value;
+    const lunaStop  = document.getElementById('filtru-luna-stop').value;
+    const judet     = document.getElementById('filtru-judet').value;
+    const mediu     = document.getElementById('filtru-mediu').value;
+
+    let url = `api/export.php?format=json&an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
+    if (judet) url += `&judet=${judet}`;
+    if (mediu) url += `&mediu=${mediu}`;
+    window.location.href = url;
 }

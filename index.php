@@ -24,14 +24,14 @@ require_once __DIR__ . '/config/config.php';
             <label>De la:</label>
             <div style="display:flex; gap:6px;">
                 <input type="number" id="filtru-luna-start" min="1" max="12" value="1" placeholder="Luna" style="width:65px;">
-                <input type="number" id="filtru-an-start" min="2000" max="2026" value="2023" placeholder="An" style="width:75px;">
+                <input type="number" id="filtru-an-start" min="2020" max="2026" value="2023" placeholder="An" style="width:75px;">
             </div>
         </div>
         <div class="filtru-item">
             <label>Până la:</label>
             <div style="display:flex; gap:6px;">
                 <input type="number" id="filtru-luna-stop" min="1" max="12" value="12" placeholder="Luna" style="width:65px;">
-                <input type="number" id="filtru-an-stop" min="2000" max="2026" value="2024" placeholder="An" style="width:75px;">
+                <input type="number" id="filtru-an-stop" min="2020" max="2026" value="2024" placeholder="An" style="width:75px;">
             </div>
         </div>
         <div class="filtru-item">
@@ -76,13 +76,15 @@ require_once __DIR__ . '/config/config.php';
     <div class="export-box" data-html2canvas-ignore>
         <button class="btn-export btn-csv" onclick="exportCSV()">Exportă CSV</button>
         <button class="btn-export btn-svg" onclick="exportSVG()">Exportă SVG</button>
+        <button class="btn-export btn-json" onclick="exportJSON()">Exportă JSON</button>
         <button class="btn-export btn-pdf" onclick="exportPDF()">Exportă PDF</button>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="public/js/app.js"></script>
+<a href="admin/" style="position:fixed; bottom:10px; right:10px; background:#1e40af; color:white; padding:8px 14px; border-radius:8px; text-decoration:none; font-size:0.85em; opacity:0.7;">⚙️ Admin</a>
 </body>
 </html>

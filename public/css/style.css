@@ -198,9 +198,15 @@ canvas {
 }
 
 .btn-pdf {
-    background: #ef4444;
+    background:     #ef4444;
 }
-
+.btn-json {
+    background-color: #9f0bf5;
+    color: white;
+}
+.btn-json:hover {
+    background-color: #9d06d9;
+}
 .btn-pdf:hover {
     background: #dc2626;
 }

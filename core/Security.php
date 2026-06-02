@@ -15,12 +15,14 @@ class Security {
             'MUNICIPIUL BUCURESTI', 'MUN. BUC.'
         ];
         $allowed_mediu = ['urban', 'rural'];
+        $allowed_sex = ['masculin', 'feminin'];
 
         $judet = strtoupper(trim($params['judet'] ?? ''));
 
         return [
             'judet'      => in_array($judet, $allowed_judete) ? $judet : null,
             'mediu'      => in_array(strtolower($params['mediu'] ?? ''), $allowed_mediu) ? strtolower($params['mediu']) : null,
+            'sex'        => in_array(strtolower($params['sex'] ?? ''), $allowed_sex) ? strtolower($params['sex']) : null,
             'an_start'   => filter_var($params['an_start'] ?? date('Y') - 1, FILTER_VALIDATE_INT),
             'luna_start' => filter_var($params['luna_start'] ?? 1, FILTER_VALIDATE_INT),
             'an_stop'    => filter_var($params['an_stop'] ?? date('Y'), FILTER_VALIDATE_INT),

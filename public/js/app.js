@@ -84,10 +84,12 @@ function aplicaFiltre() {
     const lunaStop  = document.getElementById('filtru-luna-stop').value;
     const anStop    = document.getElementById('filtru-an-stop').value;
     const mediu     = document.getElementById('filtru-mediu').value;
+    const sex       = document.getElementById('filtru-sex').value;
 
     let url = `api/statistici.php?an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
     if (judet) url += `&judet=${judet}`;
     if (mediu) url += `&mediu=${mediu}`;
+    if (sex) url += `&sex=${sex}`;
 
     document.querySelector('.btn-aplica').textContent = 'Se încarcă...';
     document.querySelector('.btn-aplica').disabled = true;
@@ -204,10 +206,12 @@ function exportCSV() {
     const lunaStop  = document.getElementById('filtru-luna-stop').value;
     const judet     = document.getElementById('filtru-judet').value;
     const mediu     = document.getElementById('filtru-mediu').value;
+    const sex       = document.getElementById('filtru-sex').value;
 
     let url = `api/export.php?format=csv&an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
     if (judet) url += `&judet=${judet}`;
     if (mediu) url += `&mediu=${mediu}`;
+    if (sex) url += `&sex=${sex}`;
     window.location.href = url;
 }
 
@@ -309,9 +313,11 @@ function exportJSON() {
     const lunaStop  = document.getElementById('filtru-luna-stop').value;
     const judet     = document.getElementById('filtru-judet').value;
     const mediu     = document.getElementById('filtru-mediu').value;
+    const sex       = document.getElementById('filtru-sex').value;
 
     let url = `api/export.php?format=json&an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
     if (judet) url += `&judet=${judet}`;
     if (mediu) url += `&mediu=${mediu}`;
+    if (sex) url += `&sex=${sex}`;
     window.location.href = url;
 }

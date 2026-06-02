@@ -14,13 +14,16 @@ class StatisticiModel {
         $cached = Cache::get($cacheKey);
         if ($cached !== null) return $cached;
 
-        $selectMediu = "numar_someri";
-        if (!empty($filters['mediu'])) {
-            if ($filters['mediu'] === 'urban') $selectMediu = "urban";
-            if ($filters['mediu'] === 'rural') $selectMediu = "rural";
+        $coloana = "numar_someri";
+        if (!empty($filters['sex'])) {
+            if ($filters['sex'] === 'masculin') $coloana = "someri_barbati";
+            if ($filters['sex'] === 'feminin')  $coloana = "someri_femei";
+        } elseif (!empty($filters['mediu'])) {
+            if ($filters['mediu'] === 'urban') $coloana = "urban";
+            if ($filters['mediu'] === 'rural') $coloana = "rural";
         }
 
-        $sql = "SELECT *, {$selectMediu} as numar_someri_filtrat FROM statistici WHERE 1=1";
+        $sql = "SELECT *, {$coloana} as numar_someri_filtrat FROM statistici WHERE 1=1";
         $params = [];
 
         if (!empty($filters['judet'])) {

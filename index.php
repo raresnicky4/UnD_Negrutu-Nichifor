@@ -54,6 +54,14 @@ require_once __DIR__ . '/config/config.php';
                 <option value="varsta_peste55">Peste 55 ani</option>
             </select>
         </div>
+        <div class="filtru-item">
+            <label>Sex:</label>
+            <select id="filtru-sex">
+                <option value="">Toate</option>
+                <option value="masculin">Masculin</option>
+                <option value="feminin">Feminin</option>
+            </select>
+        </div>
         <div class="filtru-item" style="justify-content: flex-end;">
             <button class="btn-aplica" onclick="aplicaFiltre()">Aplică Filtrele</button>
         </div>

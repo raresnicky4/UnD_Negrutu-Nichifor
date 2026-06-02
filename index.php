@@ -42,6 +42,18 @@ require_once __DIR__ . '/config/config.php';
                 <option value="rural">Rural</option>
             </select>
         </div>
+        <div class="filtru-item">
+            <label>Grupă Vârstă:</label>
+            <select id="filtru-varsta">
+                <option value="">Toate</option>
+                <option value="varsta_sub25">Sub 25 ani</option>
+                <option value="varsta_25_29">25-29 ani</option>
+                <option value="varsta_30_39">30-39 ani</option>
+                <option value="varsta_40_49">40-49 ani</option>
+                <option value="varsta_50_55">50-55 ani</option>
+                <option value="varsta_peste55">Peste 55 ani</option>
+            </select>
+        </div>
         <div class="filtru-item" style="justify-content: flex-end;">
             <button class="btn-aplica" onclick="aplicaFiltre()">Aplică Filtrele</button>
         </div>

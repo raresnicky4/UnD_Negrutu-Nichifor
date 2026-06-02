@@ -84,6 +84,7 @@ function aplicaFiltre() {
     const lunaStop  = document.getElementById('filtru-luna-stop').value;
     const anStop    = document.getElementById('filtru-an-stop').value;
     const mediu     = document.getElementById('filtru-mediu').value;
+    const varsta    = document.getElementById('filtru-varsta').value;
 
     let url = `api/statistici.php?an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
     if (judet) url += `&judet=${judet}`;
@@ -96,7 +97,7 @@ function aplicaFiltre() {
         .then(response => response.json())
         .then(data => {
             dateCurente = data;
-            actualizeazaInterfata(data);
+            actualizeazaInterfata(data, varsta);
         })
         .catch(() => alert("Eroare la aducerea datelor!"))
         .finally(() => {
@@ -105,7 +106,7 @@ function aplicaFiltre() {
         });
 }
 
-function actualizeazaInterfata(date) {
+function actualizeazaInterfata(date, varstaFiltru = '') {
     let someriPeJudet = {};
     let urban = 0, rural = 0;
     let varste = [0, 0, 0, 0, 0, 0];
@@ -115,7 +116,12 @@ function actualizeazaInterfata(date) {
         if (j === 'MUN. BUCURESTI') j = 'MUNICIPIUL BUCURESTI';
         if (j === 'TOTAL') return;
         if (!someriPeJudet[j]) someriPeJudet[j] = 0;
-        someriPeJudet[j] += parseInt(rand.numar_someri_filtrat ?? rand.numar_someri) || 0;
+
+        if (varstaFiltru && rand[varstaFiltru] !== undefined) {
+            someriPeJudet[j] += parseInt(rand[varstaFiltru]) || 0;
+        } else {
+            someriPeJudet[j] += parseInt(rand.numar_someri_filtrat ?? rand.numar_someri) || 0;
+        }
 
         urban += parseInt(rand.urban) || 0;
         rural += parseInt(rand.rural) || 0;
@@ -140,9 +146,11 @@ function actualizeazaInterfata(date) {
     const judete = judeteOrdonate.filter(j => someriPeJudet[j] !== undefined);
     const valori = judete.map(j => someriPeJudet[j]);
 
+    const labelGrafic = varstaFiltru ? `Șomeri - ${document.getElementById('filtru-varsta').options[document.getElementById('filtru-varsta').selectedIndex].text}` : 'Număr Total Șomeri';
+
     grafic.data.labels = judete;
     grafic.data.datasets = [{
-        label: 'Număr Total Șomeri',
+        label: labelGrafic,
         data: valori,
         backgroundColor: 'rgba(59, 130, 246, 0.7)',
         borderColor: 'rgba(59, 130, 246, 1)',
@@ -272,7 +280,6 @@ function exportPDF() {
         }, 200);
     }
 
-    // Extrage datele din graficele existente
     const labelsBar = grafic.data.labels;
     const datasetsBar = grafic.data.datasets;
     const labelsPie = graficPie.data.labels;
@@ -302,6 +309,7 @@ function exportPDF() {
         });
     });
 }
+
 function exportJSON() {
     const anStart   = document.getElementById('filtru-an-start').value;
     const lunaStart = document.getElementById('filtru-luna-start').value;

@@ -55,6 +55,19 @@ require_once __DIR__ . '/config/config.php';
             </select>
         </div>
         <div class="filtru-item">
+            <label>Nivel Educație:</label>
+            <select id="filtru-educatie">
+                <option value="">Toate</option>
+                <option value="edu_fara_studii">Fără studii</option>
+                <option value="edu_primar">Primar</option>
+                <option value="edu_gimnazial">Gimnazial</option>
+                <option value="edu_liceal">Liceal</option>
+                <option value="edu_postliceal">Postliceal</option>
+                <option value="edu_profesional">Profesional</option>
+                <option value="edu_universitar">Universitar</option>
+            </select>
+        </div>
+        <div class="filtru-item">
             <label>Sex:</label>
             <select id="filtru-sex">
                 <option value="">Toate</option>
@@ -77,6 +90,8 @@ require_once __DIR__ . '/config/config.php';
                 <button class="btn-view active" onclick="schimbaGrafic('bar', this)">Grafic Județe</button>
                 <button class="btn-view" onclick="schimbaGrafic('pie', this)">Distribuție Mediu</button>
                 <button class="btn-view" onclick="schimbaGrafic('varste', this)">Grupe Vârstă</button>
+                <button class="btn-view" onclick="schimbaGrafic('educatie', this)">Nivel Educație</button>
+                <button class="btn-view" onclick="schimbaGrafic('comparatie', this)">Comparație Județe</button>
             </div>
 
             <div id="container-bar" class="grafic-box">
@@ -89,6 +104,42 @@ require_once __DIR__ . '/config/config.php';
 
             <div id="container-varste" class="grafic-box hidden">
                 <canvas id="graficVarste"></canvas>
+            </div>
+
+            <div id="container-educatie" class="grafic-box hidden">
+                <canvas id="graficEducatie"></canvas>
+            </div>
+
+            <div id="container-comparatie" class="hidden">
+                <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:10px;">
+                    <select id="compara-criteriu" onchange="deseneazaComparatie()">
+                        <option value="numar_someri">Total șomeri</option>
+                        <option value="rata_somaj">Rata șomajului (%)</option>
+                        <option value="someri_femei">Femei</option>
+                        <option value="someri_barbati">Bărbați</option>
+                        <option value="urban">Urban</option>
+                        <option value="rural">Rural</option>
+                        <option value="edu_fara_studii">Educație: Fără studii</option>
+                        <option value="edu_primar">Educație: Primar</option>
+                        <option value="edu_gimnazial">Educație: Gimnazial</option>
+                        <option value="edu_liceal">Educație: Liceal</option>
+                        <option value="edu_postliceal">Educație: Postliceal</option>
+                        <option value="edu_profesional">Educație: Profesional</option>
+                        <option value="edu_universitar">Educație: Universitar</option>
+                        <option value="varsta_sub25">Vârstă: Sub 25</option>
+                        <option value="varsta_25_29">Vârstă: 25-29</option>
+                        <option value="varsta_30_39">Vârstă: 30-39</option>
+                        <option value="varsta_40_49">Vârstă: 40-49</option>
+                        <option value="varsta_50_55">Vârstă: 50-55</option>
+                        <option value="varsta_peste55">Vârstă: Peste 55</option>
+                    </select>
+                    <select id="compara-judet"></select>
+                    <button class="btn-aplica" onclick="adaugaComparatie()">+ Adaugă județ</button>
+                </div>
+                <div id="lista-comparatie" style="display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px;"></div>
+                <div style="position:relative; height:420px;">
+                    <canvas id="graficComparatie"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -104,7 +155,7 @@ require_once __DIR__ . '/config/config.php';
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="public/js/app.js"></script>
+<script src="public/js/app.js?v=3"></script>
 <a href="admin/" style="position:fixed; bottom:10px; right:10px; background:#1e40af; color:white; padding:8px 14px; border-radius:8px; text-decoration:none; font-size:0.85em; opacity:0.7;">⚙️ Admin</a>
 </body>
 </html>

@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platforma UnD - Statistici Șomaj</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <style>
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 1400px; margin: auto; background: white; padding: 30px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.08); }
+        h1 { text-align: center; color: #1a202c; margin-bottom: 25px; font-size: 28px; }
+
+        .filtre { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0; align-items: flex-end; }
+        .filtru-item { display: flex; flex-direction: column; gap: 6px; }
+        .filtre label { font-weight: 600; font-size: 13px; color: #4a5568; }
+        .filtre select, .filtre input { padding: 10px; border-radius: 6px; border: 1px solid #cbd5e0; width: 140px; font-size: 14px; }
+        .btn-aplica { background: #3b82f6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: bold; height: 41px; transition: 0.2s; }
+        .btn-aplica:hover { background: #2563eb; }
+
+        .vizualizare-split { display: flex; gap: 20px; width: 100%; height: 500px; margin-bottom: 20px; }
+        .partea-stanga { width: 50%; height: 100%; }
+        .partea-dreapta { width: 50%; height: 100%; display: flex; flex-direction: column; }
+
+        #harta { width: 100%; height: 100%; border-radius: 8px; border: 1px solid #cbd5e0; z-index: 1; }
+
+        .view-toggles { display: flex; justify-content: center; gap: 15px; margin-bottom: 15px; }
+        .btn-view { padding: 10px 20px; border: 2px solid #3b82f6; background: white; color: #3b82f6; border-radius: 30px; cursor: pointer; font-weight: bold; font-size: 14px; transition: 0.3s; }
+        .btn-view.active { background: #3b82f6; color: white; }
+        .btn-view:hover:not(.active) { background: #eff6ff; }
+
+        .grafic-box { flex: 1; width: 100%; background: white; border-radius: 8px; border: 1px solid #cbd5e0; padding: 15px; display: flex; justify-content: center; align-items: center; position: relative; min-height: 0; }
+        .hidden { display: none !important; }
+        canvas { width: 100% !important; height: 100% !important; }
+
+        .export-box { display: flex; gap: 15px; justify-content: center; margin-top: 30px; border-top: 1px solid #e2e8f0; padding-top: 20px; }
+        .btn-export { padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; color: white; font-weight: bold; transition: 0.2s; }
+        .btn-csv { background: #10b981; } .btn-csv:hover { background: #059669; }
+        .btn-svg { background: #0ea5e9; } .btn-svg:hover { background: #0284c7; }
+        .btn-pdf { background: #ef4444; } .btn-pdf:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="continut-pdf">
+    <h1>Platforma UnD - Analiză Șomaj România</h1>
+
+    <div class="filtre" data-html2canvas-ignore>
+        <div class="filtru-item">
+            <label>Județ:</label>
+            <input type="text" id="filtru-judet" placeholder="Ex: Iasi">
+        </div>
+        <div class="filtru-item">
+            <label>Anul:</label>
+            <input type="number" id="filtru-an" value="2024">
+        </div>
+        <div class="filtru-item">
+            <label>De la Luna:</label>
+            <input type="number" id="filtru-luna-start" min="1" max="12" value="1">
+        </div>
+        <div class="filtru-item">
+            <label>Până la Luna:</label>
+            <input type="number" id="filtru-luna-end" min="1" max="12" value="12">
+        </div>
+        <div class="filtru-item">
+            <label>Mediu:</label>
+            <select id="filtru-mediu">
+                <option value="">Toate</option>
+                <option value="Urban">Urban</option>
+                <option value="Rural">Rural</option>
+            </select>
+        </div>
+        <div class="filtru-item">
+            <label>Educație:</label>
+            <select id="filtru-educatie">
+                <option value="">Toate</option>
+                <option value="Mediu">Mediu</option>
+                <option value="Superior">Superior</option>
+            </select>
+        </div>
+        <div class="filtru-item" style="justify-content: flex-end;">
+            <button class="btn-aplica" onclick="aplicaFiltre()">Aplică Filtrele</button>
+        </div>
+    </div>
+
+    <div class="vizualizare-split">
+        <div class="partea-stanga">
+            <div id="harta"></div>
+        </div>
+
+        <div class="partea-dreapta">
+            <div class="view-toggles" data-html2canvas-ignore>
+                <button class="btn-view active" onclick="schimbaGrafic('bar', this)">📊 Grafic Județe</button>
+                <button class="btn-view" onclick="schimbaGrafic('pie', this)">🥧 Distribuție Mediu</button>
+            </div>
+
+            <div id="container-bar" class="grafic-box">
+                <canvas id="graficSomaj"></canvas>
+            </div>
+
+            <div id="container-pie" class="grafic-box hidden">
+                <canvas id="graficPie"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="export-box" data-html2canvas-ignore>
+        <button class="btn-export btn-csv" onclick="exportCSV()">Exportă CSV</button>
+        <button class="btn-export btn-svg" onclick="exportSVG()">Exportă SVG (Grafic)</button>
+        <button class="btn-export btn-pdf" onclick="exportPDF()">Exportă PDF (Raport)</button>
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="js/script.js"></script>
+</body>
+</html>

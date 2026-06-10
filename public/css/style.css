@@ -249,3 +249,32 @@ canvas {
         width: 100%;
     }
 }
+.view-toggles {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+}
+
+.btn-view {
+    padding: 8px 12px;
+    border: 2px solid #3b82f6;
+    background: white;
+    color: #3b82f6;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 12px;
+    transition: 0.3s;
+}
+#container-comparatie {
+    flex: 1;
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    padding: 15px;
+    overflow-y: auto;
+    min-height: 0;
+}

@@ -80,7 +80,7 @@ require_once __DIR__ . '/config/config.php';
         </div>
     </div>
 
-    <div class="vizualizare-split">
+    <div class="vizualizare-split" style="height: 600px;">
         <div class="partea-stanga">
             <div id="harta"></div>
         </div>

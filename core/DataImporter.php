@@ -2,10 +2,12 @@
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../core/Cache.php';
 
+// Clasa care se ocupa cu importul datelor despre somaj de pe data.gov.ro
 class DataImporter {
 
     private $db;
 
+    // Numele lunilor in romana, folosite pentru cautarea pachetelor pe API
     private $luniRo = [
         1 => 'ianuarie', 2 => 'februarie', 3 => 'martie',
         4 => 'aprilie', 5 => 'mai', 6 => 'iunie',
@@ -17,11 +19,14 @@ class DataImporter {
         $this->db = Database::getInstance()->getConnection();
     }
 
+    // Importa datele pentru toate lunile din intervalul dat
+    // Sare peste lunile care au deja date sau sunt in viitor
     public function importaInterval(int $anStart, int $lunaStart, int $anStop, int $lunaStop): void {
         $an = $anStart;
         $luna = $lunaStart;
         while ($an < $anStop || ($an === $anStop && $luna <= $lunaStop)) {
             if (!$this->existaDate($an, $luna)) {
+                // Nu importa luni din viitor
                 $dataLuna = mktime(0, 0, 0, $luna, 1, $an);
                 if ($dataLuna <= time()) {
                     $this->stergeDate($an, $luna);
@@ -34,19 +39,25 @@ class DataImporter {
         }
     }
 
+    // Verifica daca exista deja date valide pentru o luna
+    // Considera valida o luna cu cel putin 30 de judete cu valori nenule
     private function existaDate(int $an, int $luna): bool {
         $stmt = $this->db->prepare("SELECT COUNT(*) FROM statistici WHERE anul = :an AND luna = :luna AND numar_someri > 0 AND urban > 0");
         $stmt->execute([':an' => $an, ':luna' => $luna]);
         return $stmt->fetchColumn() >= 30;
     }
 
+    // Sterge toate inregistrarile pentru o luna specifica
     private function stergeDate(int $an, int $luna): void {
         $stmt = $this->db->prepare("DELETE FROM statistici WHERE anul = :an AND luna = :luna");
         $stmt->execute([':an' => $an, ':luna' => $luna]);
     }
 
+    // Descarca si importa datele pentru o singura luna de pe data.gov.ro
     private function importaLuna(int $an, int $luna): void {
         $numeLuna = $this->luniRo[$luna];
+
+        // Cauta pachetele care corespund lunii si anului dorit
         $apiUrl = "https://data.gov.ro/api/3/action/package_search?q=somaj+{$numeLuna}+{$an}&rows=10";
         $context = stream_context_create(['http' => ['header' => 'User-Agent: Mozilla/5.0', 'timeout' => 5]]);
 
@@ -56,13 +67,16 @@ class DataImporter {
         $json = json_decode($response, true);
         if (!$json || empty($json['result']['results'])) return;
 
+        // Cauta link-urile de descarcare pentru fiecare tip de CSV
         $linkRata = $linkMedii = $linkVarste = $linkEducatie = null;
 
         foreach ($json['result']['results'] as $pachet) {
             $titlu = strtolower($pachet['title'] ?? '');
+            // Sare peste pachetele care nu corespund lunii/anului curent
             if (strpos($titlu, $numeLuna) === false || strpos($titlu, (string)$an) === false) continue;
 
             foreach ($pachet['resources'] as $resursa) {
+                // Forteaza HTTPS in loc de HTTP
                 $url = str_replace('http://', 'https://', $resursa['url'] ?? '');
                 $urlLower = strtolower($url);
                 if (strpos($urlLower, 'rata') !== false && strpos($urlLower, '.csv') !== false) $linkRata = $url;
@@ -73,8 +87,10 @@ class DataImporter {
             if ($linkRata) break;
         }
 
+        // CSV-ul cu rata este obligatoriu, fara el nu se importa nimic
         if (!$linkRata) return;
 
+        // Descarca fiecare fisier CSV
         $dateRata     = $this->descarcaCSVRata($linkRata);
         $dateMedii    = $linkMedii    ? $this->descarcaCSV($linkMedii)    : [];
         $dateVarste   = $linkVarste   ? $this->descarcaCSV($linkVarste)   : [];
@@ -83,9 +99,11 @@ class DataImporter {
         $this->salveaza($an, $luna, $dateRata, $dateMedii, $dateVarste, $dateEducatie);
     }
 
+    // Normalizeaza numele judetului la un format standard
     private function normalizeazaJudet(string $judet): string {
         $judet = strtoupper(trim($judet));
         $judet = preg_replace('/\s+/', ' ', $judet);
+        // Mapeaza variantele cunoscute la numele standard
         $map = [
             'BISTRITANASAUD'      => 'BISTRITA NASAUD',
             'BISTRITA-NASAUD'     => 'BISTRITA NASAUD',
@@ -101,15 +119,18 @@ class DataImporter {
         return $map[$judet] ?? $judet;
     }
 
+    // Descarca si parseaza CSV-ul cu rata somajului (delimiter ; sau ,)
     private function descarcaCSVRata(string $url): array {
         $context = stream_context_create(['http' => ['header' => 'User-Agent: Mozilla/5.0', 'timeout' => 15, 'follow_location' => 1]]);
         $continut = @file_get_contents($url, false, $context);
         if (!$continut) return [];
 
+        // Converteste continutul la UTF-8
         $continut = mb_convert_encoding($continut, 'UTF-8', 'auto');
         $linii = explode("\n", trim($continut));
         if (count($linii) < 2) return [];
 
+        // Sare peste randul de header
         array_shift($linii);
         $rezultat = [];
 
@@ -117,6 +138,7 @@ class DataImporter {
             $linie = trim($linie);
             if (empty($linie)) continue;
 
+            // Incearca mai intai cu punct si virgula, apoi cu virgula
             $col = str_getcsv($linie, ';');
             if (count($col) < 2) $col = str_getcsv($linie, ',');
 
@@ -125,6 +147,7 @@ class DataImporter {
 
             $judet = $this->normalizeazaJudet($col[0]);
             $judet = substr($judet, 0, 100);
+            // Sare peste randurile de total si cele invalide
             if (empty($judet) || strpos($judet, 'TOTAL') !== false || strlen($judet) < 2) continue;
 
             $rezultat[$judet] = $col;
@@ -133,6 +156,7 @@ class DataImporter {
         return $rezultat;
     }
 
+    // Descarca si parseaza un CSV generic (medii, varste, educatie)
     private function descarcaCSV(string $url): array {
         $context = stream_context_create(['http' => ['header' => 'User-Agent: Mozilla/5.0', 'timeout' => 15, 'follow_location' => 1]]);
         $continut = @file_get_contents($url, false, $context);
@@ -142,6 +166,7 @@ class DataImporter {
         $linii = explode("\n", trim($continut));
         if (count($linii) < 2) return [];
 
+        // Detecteaza automat delimitatorul din randul de header
         $header = $linii[0];
         $delimiter = substr_count($header, ';') >= substr_count($header, ',') ? ';' : ',';
 
@@ -166,14 +191,17 @@ class DataImporter {
         return $rezultat;
     }
 
+    // Extrage un intreg dintr-un string, eliminand caracterele non-numerice
     private function parseInt(string $val): int {
         return (int)preg_replace('/[^0-9]/', '', $val);
     }
 
+    // Extrage un float dintr-un string, tratand virgula ca separator zecimal
     private function parseFloat(string $val): float {
         return (float)str_replace(',', '.', preg_replace('/[^0-9,.]/', '', $val));
     }
 
+    // Salveaza datele in baza de date folosind INSERT ... ON DUPLICATE KEY UPDATE
     private function salveaza(int $an, int $luna, array $rata, array $medii, array $varste, array $educatie): void {
         $stmt = $this->db->prepare("
             INSERT INTO statistici
@@ -199,7 +227,9 @@ class DataImporter {
                 edu_universitar = VALUES(edu_universitar)
         ");
 
+        // Itereaza prin datele de rata (un rand per judet) si combina cu celelalte CSV-uri
         foreach ($rata as $judet => $col) {
+            // Incearca potrivire exacta, apoi fara spatii pentru medii/varste/educatie
             $r = $medii[$judet]    ?? $medii[str_replace(' ', '', $judet)]    ?? [];
             $v = $varste[$judet]   ?? $varste[str_replace(' ', '', $judet)]   ?? [];
             $e = $educatie[$judet] ?? $educatie[str_replace(' ', '', $judet)] ?? [];

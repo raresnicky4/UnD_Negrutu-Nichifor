@@ -1,10 +1,20 @@
+// ============================================================
+// app.js - UnD Vizualizator Date Somaj
+// Logica client: grafice, harta, filtre, export
+// ============================================================
+
+// Instantele globale ale graficelor si hartii
 let harta;
 let grafic;
 let graficPie;
 let graficVarste;
 let graficEducatie;
 let graficComparatie;
+
+// Lista judetelor adaugate curent in graficul de comparatie
 let judeteComparate = [];
+
+// Lista completa a judetelor din Romania
 const TOATE_JUDETELE = [
     'ALBA', 'ARAD', 'ARGES', 'BACAU', 'BIHOR', 'BISTRITA NASAUD', 'BOTOSANI',
     'BRAILA', 'BRASOV', 'BUZAU', 'CALARASI', 'CARAS SEVERIN', 'CLUJ', 'CONSTANTA',
@@ -13,9 +23,13 @@ const TOATE_JUDETELE = [
     'NEAMT', 'OLT', 'PRAHOVA', 'SALAJ', 'SATU MARE', 'SIBIU', 'SUCEAVA',
     'TELEORMAN', 'TIMIS', 'TULCEA', 'VALCEA', 'VASLUI', 'VRANCEA', 'MUNICIPIUL BUCURESTI'
 ];
+
+// Stocheaza ultimele date primite de la API
 let dateCurente = [];
 
+// Initializeaza harta si graficele dupa incarcarea paginii
 document.addEventListener("DOMContentLoaded", function() {
+    // Limiteaza harta la granita Romaniei
     const limiteRomania = [[43.5, 20.0], [48.5, 30.0]];
 
     harta = L.map('harta', {
@@ -24,10 +38,12 @@ document.addEventListener("DOMContentLoaded", function() {
         minZoom: 6
     }).setView([45.9, 25.0], 6);
 
+    // Incarca placile OpenStreetMap
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '© OpenStreetMap contributors'
     }).addTo(harta);
 
+    // Grafic bara - someri pe judete
     const ctx = document.getElementById('graficSomaj').getContext('2d');
     grafic = new Chart(ctx, {
         type: 'bar',
@@ -35,7 +51,7 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Șomeri pe Județe' } },
+            plugins: { title: { display: true, text: 'Someri pe Judete' } },
             scales: {
                 y: { beginAtZero: true },
                 x: {
@@ -50,6 +66,7 @@ document.addEventListener("DOMContentLoaded", function() {
         }
     });
 
+    // Grafic tort - distributie urban vs rural
     const ctxPie = document.getElementById('graficPie').getContext('2d');
     graficPie = new Chart(ctxPie, {
         type: 'pie',
@@ -57,10 +74,11 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Distribuție Urban vs Rural' } }
+            plugins: { title: { display: true, text: 'Distributie Urban vs Rural' } }
         }
     });
 
+    // Grafic bara - distributie pe grupe de varsta
     const ctxVarste = document.getElementById('graficVarste').getContext('2d');
     graficVarste = new Chart(ctxVarste, {
         type: 'bar',
@@ -71,26 +89,28 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Distribuție pe Grupe de Vârstă' } },
+            plugins: { title: { display: true, text: 'Distributie pe Grupe de Varsta' } },
             scales: { y: { beginAtZero: true } }
         }
     });
 
+    // Grafic bara - distributie pe nivel de educatie
     const ctxEducatie = document.getElementById('graficEducatie').getContext('2d');
     graficEducatie = new Chart(ctxEducatie, {
         type: 'bar',
         data: {
-            labels: ['Fără studii', 'Primar', 'Gimnazial', 'Liceal', 'Postliceal', 'Profesional', 'Universitar'],
+            labels: ['Fara studii', 'Primar', 'Gimnazial', 'Liceal', 'Postliceal', 'Profesional', 'Universitar'],
             datasets: []
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Distribuție pe Nivel de Educație' } },
+            plugins: { title: { display: true, text: 'Distributie pe Nivel de Educatie' } },
             scales: { y: { beginAtZero: true } }
         }
     });
 
+    // Grafic bara - comparatie intre judete selectate
     const ctxComp = document.getElementById('graficComparatie').getContext('2d');
     graficComparatie = new Chart(ctxComp, {
         type: 'bar',
@@ -98,11 +118,12 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Comparație între Județe' } },
+            plugins: { title: { display: true, text: 'Comparatie intre Judete' } },
             scales: { y: { beginAtZero: true } }
         }
     });
 
+    // Populeaza lista de judete din dropdown-ul de comparatie
     const selComp = document.getElementById('compara-judet');
     TOATE_JUDETELE.forEach(j => {
         const opt = document.createElement('option');
@@ -112,6 +133,7 @@ document.addEventListener("DOMContentLoaded", function() {
     });
 });
 
+// Afiseaza graficul selectat si ascunde celelalte
 function schimbaGrafic(tip, btn) {
     document.getElementById('container-bar').classList.add('hidden');
     document.getElementById('container-pie').classList.add('hidden');
@@ -127,6 +149,7 @@ function schimbaGrafic(tip, btn) {
     else if (tip === 'comparatie') document.getElementById('container-comparatie').classList.remove('hidden');
 }
 
+// Citeste valorile filtrelor si preia datele de la API prin Ajax
 function aplicaFiltre() {
     const judet     = document.getElementById('filtru-judet').value.toUpperCase().trim();
     const lunaStart = document.getElementById('filtru-luna-start').value;
@@ -138,29 +161,35 @@ function aplicaFiltre() {
     const educatie  = document.getElementById('filtru-educatie').value;
     const sex       = document.getElementById('filtru-sex').value;
 
+    // Construieste URL-ul API cu parametrii de filtrare
     let url = `api/statistici.php?an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
     if (judet) url += `&judet=${judet}`;
     if (mediu) url += `&mediu=${mediu}`;
     if (sex) url += `&sex=${sex}`;
 
-    document.querySelector('.btn-aplica').textContent = 'Se încarcă...';
+    // Dezactiveaza butonul pe durata incarcarii
+    document.querySelector('.btn-aplica').textContent = 'Se incarca...';
     document.querySelector('.btn-aplica').disabled = true;
 
+    // Apel asincron catre API-ul REST
     fetch(url)
         .then(response => response.json())
         .then(data => {
             dateCurente = data;
             actualizeazaInterfata(data, varsta, educatie);
+            // Redeseneaza graficul de comparatie daca sunt judete selectate
             if (judeteComparate.length > 0) deseneazaComparatie();
         })
         .catch(() => alert("Eroare la aducerea datelor!"))
         .finally(() => {
-            document.querySelector('.btn-aplica').textContent = 'Aplică Filtrele';
+            document.querySelector('.btn-aplica').textContent = 'Aplica Filtrele';
             document.querySelector('.btn-aplica').disabled = false;
         });
 }
 
+// Actualizeaza toate graficele si harta cu datele noi
 function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
+    // Totaluri agregate pe judet
     let someriPeJudet = {};
     let urban = 0, rural = 0;
     let varste = [0, 0, 0, 0, 0, 0];
@@ -168,21 +197,26 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
 
     date.forEach(rand => {
         let j = rand.judet.toUpperCase();
+        // Normalizeaza numele Bucurestiului
         if (j === 'MUN. BUCURESTI') j = 'MUNICIPIUL BUCURESTI';
         if (j === 'TOTAL') return;
         if (!someriPeJudet[j]) someriPeJudet[j] = 0;
 
+        // Foloseste coloana filtrata daca e activ filtrul de varsta sau educatie
         if (varstaFiltru && rand[varstaFiltru] !== undefined) {
             someriPeJudet[j] += parseInt(rand[varstaFiltru]) || 0;
         } else if (educatieFiltru && rand[educatieFiltru] !== undefined) {
             someriPeJudet[j] += parseInt(rand[educatieFiltru]) || 0;
         } else {
+            // Foloseste valoarea filtrata de server daca exista, altfel totalul
             someriPeJudet[j] += parseInt(rand.numar_someri_filtrat ?? rand.numar_someri) || 0;
         }
 
+        // Acumuleaza totalurile urban/rural
         urban += parseInt(rand.urban) || 0;
         rural += parseInt(rand.rural) || 0;
 
+        // Acumuleaza totalurile pe grupe de varsta
         varste[0] += parseInt(rand.varsta_sub25) || 0;
         varste[1] += parseInt(rand.varsta_25_29) || 0;
         varste[2] += parseInt(rand.varsta_30_39) || 0;
@@ -190,6 +224,7 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
         varste[4] += parseInt(rand.varsta_50_55) || 0;
         varste[5] += parseInt(rand.varsta_peste55) || 0;
 
+        // Acumuleaza totalurile pe nivel de educatie
         educatie[0] += parseInt(rand.edu_fara_studii) || 0;
         educatie[1] += parseInt(rand.edu_primar) || 0;
         educatie[2] += parseInt(rand.edu_gimnazial) || 0;
@@ -199,6 +234,7 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
         educatie[6] += parseInt(rand.edu_universitar) || 0;
     });
 
+    // Pastreaza judetele in ordine alfabetica
     const judeteOrdonate = [
         'ALBA', 'ARAD', 'ARGES', 'BACAU', 'BIHOR', 'BISTRITA NASAUD', 'BOTOSANI',
         'BRAILA', 'BRASOV', 'BUZAU', 'CALARASI', 'CARAS SEVERIN', 'CLUJ', 'CONSTANTA',
@@ -208,11 +244,16 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
         'TELEORMAN', 'TIMIS', 'TULCEA', 'VALCEA', 'VASLUI', 'VRANCEA', 'MUNICIPIUL BUCURESTI'
     ];
 
+    // Afiseaza doar judetele care au date
     const judete = judeteOrdonate.filter(j => someriPeJudet[j] !== undefined);
     const valori = judete.map(j => someriPeJudet[j]);
 
-    const labelGrafic = varstaFiltru ? `Șomeri - ${document.getElementById('filtru-varsta').options[document.getElementById('filtru-varsta').selectedIndex].text}` : 'Număr Total Șomeri';
+    // Eticheta dinamica in functie de filtrul de varsta activ
+    const labelGrafic = varstaFiltru
+        ? `Someri - ${document.getElementById('filtru-varsta').options[document.getElementById('filtru-varsta').selectedIndex].text}`
+        : 'Numar Total Someri';
 
+    // Actualizeaza graficul bara - judete
     grafic.data.labels = judete;
     grafic.data.datasets = [{
         label: labelGrafic,
@@ -223,6 +264,7 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
     }];
     grafic.update();
 
+    // Actualizeaza graficul tort - urban vs rural
     graficPie.data.datasets = [{
         data: [urban, rural],
         backgroundColor: ['#0ea5e9', '#ef4444'],
@@ -230,8 +272,9 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
     }];
     graficPie.update();
 
+    // Actualizeaza graficul bara - grupe de varsta
     graficVarste.data.datasets = [{
-        label: 'Număr Șomeri',
+        label: 'Numar Someri',
         data: varste,
         backgroundColor: [
             'rgba(59,130,246,0.7)', 'rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)',
@@ -241,8 +284,9 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
     }];
     graficVarste.update();
 
+    // Actualizeaza graficul bara - nivel de educatie
     graficEducatie.data.datasets = [{
-        label: 'Număr Șomeri',
+        label: 'Numar Someri',
         data: educatie,
         backgroundColor: [
             'rgba(59,130,246,0.7)', 'rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)',
@@ -252,6 +296,7 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
     }];
     graficEducatie.update();
 
+    // Coordonatele GPS ale centrului fiecarui judet
     const coordonate = {
         "ALBA": [46.07, 23.57], "ARAD": [46.18, 21.31], "ARGES": [44.85, 24.87],
         "BACAU": [46.56, 26.91], "BIHOR": [47.04, 21.91], "BISTRITA NASAUD": [47.13, 24.48],
@@ -269,43 +314,52 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
         "VASLUI": [46.64, 27.73], "VRANCEA": [45.70, 27.18], "MUNICIPIUL BUCURESTI": [44.42, 26.10]
     };
 
+    // Sterge markerii existenti inainte de a adauga unii noi
     harta.eachLayer(layer => { if (layer instanceof L.Marker) harta.removeLayer(layer); });
 
+    // Adauga un marker pentru fiecare judet cu un popup cu totalul
     judete.forEach(j => {
         if (coordonate[j]) {
             L.marker(coordonate[j])
                 .addTo(harta)
-                .bindPopup(`<b>${j}</b><br>Șomeri: ${someriPeJudet[j].toLocaleString()}`);
+                .bindPopup(`<b>${j}</b><br>Someri: ${someriPeJudet[j].toLocaleString()}`);
         }
     });
 }
 
+// Adauga un judet in graficul de comparatie
 function adaugaComparatie() {
     const jd = document.getElementById('compara-judet').value;
     if (!jd) return;
+    // Datele trebuie incarcate mai intai
     if (dateCurente.length === 0) {
-        alert('Apasă întâi „Aplică Filtrele" ca să încarci datele!');
+        alert('Apasa intai Aplica Filtrele ca sa incarci datele!');
         return;
     }
+    // Previne adaugarea duplicatelor
     if (judeteComparate.includes(jd)) {
-        alert('Județul „' + jd + '" e deja în comparație!');
+        alert('Judetul ' + jd + ' e deja in comparatie!');
         return;
     }
     judeteComparate.push(jd);
     deseneazaComparatie();
 }
 
+// Sterge un judet din graficul de comparatie
 function stergeComparatie(jd) {
     judeteComparate = judeteComparate.filter(x => x !== jd);
     deseneazaComparatie();
 }
 
+// Redeseneaza graficul de comparatie pe baza judetelor si criteriului selectat
 function deseneazaComparatie() {
     const select = document.getElementById('compara-criteriu');
     const criteriu = select.value;
     const numeCriteriu = select.options[select.selectedIndex].text;
+    // Rata somajului foloseste media, celelalte folosesc suma
     const esteRata = (criteriu === 'rata_somaj');
 
+    // Calculeaza valoarea pentru fiecare judet selectat
     const valori = judeteComparate.map(jd => {
         let suma = 0, nr = 0;
         dateCurente.forEach(rand => {
@@ -320,6 +374,7 @@ function deseneazaComparatie() {
         return Math.round(val * 100) / 100;
     });
 
+    // Actualizeaza datele graficului de comparatie
     graficComparatie.data.labels = judeteComparate.slice();
     graficComparatie.data.datasets = [{
         label: numeCriteriu,
@@ -328,9 +383,10 @@ function deseneazaComparatie() {
         borderColor: 'rgba(16, 185, 129, 1)',
         borderWidth: 1
     }];
-    graficComparatie.options.plugins.title.text = 'Comparație Județe - ' + numeCriteriu;
+    graficComparatie.options.plugins.title.text = 'Comparatie Judete - ' + numeCriteriu;
     graficComparatie.update();
 
+    // Randeaza lista de judete selectate cu buton de stergere
     const lista = document.getElementById('lista-comparatie');
     lista.innerHTML = '';
     judeteComparate.forEach(jd => {
@@ -338,7 +394,7 @@ function deseneazaComparatie() {
         chip.style.cssText = 'background:#1e40af; color:white; padding:5px 10px; border-radius:14px; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;';
         chip.textContent = jd;
         const x = document.createElement('span');
-        x.textContent = '✕';
+        x.textContent = 'X';
         x.style.cssText = 'cursor:pointer; font-weight:bold;';
         x.onclick = () => stergeComparatie(jd);
         chip.appendChild(x);
@@ -346,6 +402,7 @@ function deseneazaComparatie() {
     });
 }
 
+// Exporta datele curente ca CSV prin API-ul server-side
 function exportCSV() {
     if (dateCurente.length === 0) return alert("Nu sunt date!");
     const anStart   = document.getElementById('filtru-an-start').value;
@@ -363,13 +420,16 @@ function exportCSV() {
     window.location.href = url;
 }
 
+// Exporta graficul vizibil curent ca fisier SVG
 function exportSVG() {
+    // Determina care grafic este vizibil in momentul curent
     const vizActiva = document.querySelector('.btn-view.active').innerText;
     let idCanvas = 'graficSomaj';
     if (vizActiva.includes('Mediu')) idCanvas = 'graficPie';
-    else if (vizActiva.includes('Vârstă')) idCanvas = 'graficVarste';
-    else if (vizActiva.includes('Educație')) idCanvas = 'graficEducatie';
+    else if (vizActiva.includes('Varsta')) idCanvas = 'graficVarste';
+    else if (vizActiva.includes('Educatie')) idCanvas = 'graficEducatie';
 
+    // Inconjoara imaginea canvas in SVG si declanseza descarcarea
     const canvas = document.getElementById(idCanvas);
     const imgURI = canvas.toDataURL("image/png");
     const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" width="${canvas.width}" height="${canvas.height}">
@@ -382,16 +442,19 @@ function exportSVG() {
     link.click();
 }
 
+// Exporta toate graficele ca PDF cu mai multe pagini
 function exportPDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('landscape', 'mm', 'a4');
 
+    // Functie ajutatoare: randeaza un grafic pe un canvas temporar si returneaza ca imagine
     function graficPeCanvas(tip, labels, datasets, titlu, callback) {
         const tmpCanvas = document.createElement('canvas');
         tmpCanvas.width = 1200;
         tmpCanvas.height = 600;
         document.body.appendChild(tmpCanvas);
 
+        // Fundal alb
         const ctx = tmpCanvas.getContext('2d');
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, tmpCanvas.width, tmpCanvas.height);
@@ -417,6 +480,7 @@ function exportPDF() {
             }
         });
 
+        // Asteapta randarea, capteaza imaginea si curata canvas-ul temporar
         setTimeout(() => {
             const imgData = tmpCanvas.toDataURL('image/jpeg', 0.98);
             chart.destroy();
@@ -425,6 +489,7 @@ function exportPDF() {
         }, 200);
     }
 
+    // Extrage datele din graficele curente
     const labelsBar = grafic.data.labels;
     const datasetsBar = grafic.data.datasets;
     const labelsPie = graficPie.data.labels;
@@ -434,6 +499,7 @@ function exportPDF() {
     const labelsEducatie = graficEducatie.data.labels;
     const datasetsEducatie = graficEducatie.data.datasets;
 
+    // Construieste PDF-ul pagina cu pagina (callback-uri inlantuite)
     graficPeCanvas('bar', labelsBar, datasetsBar, 'Someri pe Judete', (img1) => {
         doc.setFontSize(16);
         doc.text('Someri pe Judete', 10, 15);
@@ -464,6 +530,7 @@ function exportPDF() {
     });
 }
 
+// Exporta datele curente ca JSON prin API-ul server-side
 function exportJSON() {
     const anStart   = document.getElementById('filtru-an-start').value;
     const lunaStart = document.getElementById('filtru-luna-start').value;

@@ -1,6 +1,8 @@
 <?php
+// Parola pentru accesul in panoul de administrare
 $PAROLA_ADMIN = 'admin123';
 
+// Afiseaza formularul de login daca parola nu a fost trimisa sau e gresita
 if (!isset($_POST['parola']) || $_POST['parola'] !== $PAROLA_ADMIN) {
     ?>
     <!DOCTYPE html>
@@ -21,11 +23,11 @@ if (!isset($_POST['parola']) || $_POST['parola'] !== $PAROLA_ADMIN) {
     <div class="box">
         <h2>🔐 Admin UnD</h2>
         <?php if (isset($_POST['parola'])): ?>
-            <div class="eroare">❌ Parolă incorectă!</div>
+            <div class="eroare">❌ Parola incorecta!</div>
         <?php endif; ?>
         <form method="POST">
-            <input type="password" name="parola" placeholder="Parolă admin" required autofocus>
-            <button type="submit">Intră</button>
+            <input type="password" name="parola" placeholder="Parola admin" required autofocus>
+            <button type="submit">Intra</button>
         </form>
     </div>
     </body>
@@ -34,6 +36,7 @@ if (!isset($_POST['parola']) || $_POST['parola'] !== $PAROLA_ADMIN) {
     exit;
 }
 
+// Incarca dependintele dupa autentificare reusita
 require_once __DIR__ . '/../config/config.php';
 require_once __DIR__ . '/../core/Database.php';
 require_once __DIR__ . '/../core/Cache.php';
@@ -42,15 +45,22 @@ require_once __DIR__ . '/../core/DataImporter.php';
 $db = Database::getInstance()->getConnection();
 $mesaj = '';
 
+// Proceseaza actiunile trimise prin POST
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    // Sterge toate fisierele din cache
     if (isset($_POST['sterge_cache'])) {
         Cache::clear();
-        $mesaj = 'Cache șters cu succes!';
+        $mesaj = 'Cache sters cu succes!';
     }
+
+    // Reimporta datele pentru o luna specifica
     if (isset($_POST['reimport'])) {
         $an = (int)$_POST['an'];
         $luna = (int)$_POST['luna'];
+        // Valideaza intervalul anului si lunii
         if ($an >= 2020 && $an <= 2026 && $luna >= 1 && $luna <= 12) {
+            // Sterge datele existente pentru luna respectiva inainte de reimport
             $stmt = $db->prepare("DELETE FROM statistici WHERE anul = :an AND luna = :luna");
             $stmt->execute([':an' => $an, ':luna' => $luna]);
             Cache::clear();
@@ -61,10 +71,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Preia statisticile generale pentru dashboard
 $totalInregistrari = $db->query("SELECT COUNT(*) FROM statistici")->fetchColumn();
 $anMin = $db->query("SELECT MIN(anul) FROM statistici")->fetchColumn();
 $anMax = $db->query("SELECT MAX(anul) FROM statistici")->fetchColumn();
 
+// Preia sumar pe luni importate
 $luniImportate = $db->query("
     SELECT anul, luna, COUNT(*) as nr_judete, SUM(numar_someri) as total_someri
     FROM statistici
@@ -72,6 +84,7 @@ $luniImportate = $db->query("
     ORDER BY anul DESC, luna DESC
 ")->fetchAll();
 
+// Numara fisierele cache active
 $cacheFiles = glob(__DIR__ . '/../cache/*.cache') ?: [];
 ?>
 <!DOCTYPE html>
@@ -105,19 +118,20 @@ $cacheFiles = glob(__DIR__ . '/../cache/*.cache') ?: [];
 </head>
 <body style="background:#f1f5f9;">
 <div class="admin-container">
-    <a class="back" href="../">← Înapoi la aplicație</a>
+    <a class="back" href="../">← Inapoi la aplicatie</a>
     <h1 style="color:#1e40af;">🛠️ Panou de Administrare - UnD</h1>
 
     <?php if ($mesaj): ?>
         <div class="mesaj">✅ <?= htmlspecialchars($mesaj) ?></div>
     <?php endif; ?>
 
+    <!-- Sectiunea cu statistici generale despre baza de date -->
     <div class="card">
         <h2>📊 Statistici Generale</h2>
         <div class="stats-grid">
             <div class="stat-box">
                 <div class="val"><?= number_format($totalInregistrari) ?></div>
-                <div class="lbl">Total înregistrări</div>
+                <div class="lbl">Total inregistrari</div>
             </div>
             <div class="stat-box">
                 <div class="val"><?= count($luniImportate) ?></div>
@@ -134,18 +148,21 @@ $cacheFiles = glob(__DIR__ . '/../cache/*.cache') ?: [];
         </div>
     </div>
 
+    <!-- Sectiunea de management al cache-ului -->
     <div class="card">
         <h2>🗑️ Management Cache</h2>
-        <p>Fișiere cache active: <strong><?= count($cacheFiles) ?></strong></p>
+        <p>Fisiere cache active: <strong><?= count($cacheFiles) ?></strong></p>
         <form method="POST">
+            <!-- Parola trimisa in camp ascuns pentru a mentine autentificarea -->
             <input type="hidden" name="parola" value="<?= htmlspecialchars($_POST['parola']) ?>">
-            <button type="submit" name="sterge_cache" class="btn btn-red">Șterge tot cache-ul</button>
+            <button type="submit" name="sterge_cache" class="btn btn-red">Sterge tot cache-ul</button>
         </form>
     </div>
 
+    <!-- Sectiunea de reimport - forteaza re-descarcarea de pe data.gov.ro -->
     <div class="card">
         <h2>🔄 Reimport Date</h2>
-        <p>Forțează reimportul datelor pentru o lună specifică:</p>
+        <p>Forteaza reimportul datelor pentru o luna specifica:</p>
         <form method="POST">
             <input type="hidden" name="parola" value="<?= htmlspecialchars($_POST['parola']) ?>">
             <div class="form-inline">
@@ -153,16 +170,17 @@ $cacheFiles = glob(__DIR__ . '/../cache/*.cache') ?: [];
                 <input type="number" name="luna" min="1" max="12" value="1" required>
                 <label>Anul:</label>
                 <input type="number" name="an" min="2020" max="2026" value="2023" required>
-                <button type="submit" name="reimport" class="btn btn-blue">Reimportă</button>
+                <button type="submit" name="reimport" class="btn btn-blue">Reimporta</button>
             </div>
         </form>
     </div>
 
+    <!-- Tabel cu toate lunile importate si statusul lor -->
     <div class="card">
         <h2>📅 Date Importate</h2>
         <table>
             <thead>
-                <tr><th>An</th><th>Lună</th><th>Județe</th><th>Total Șomeri</th><th>Status</th></tr>
+                <tr><th>An</th><th>Luna</th><th>Judete</th><th>Total Someri</th><th>Status</th></tr>
             </thead>
             <tbody>
                 <?php foreach ($luniImportate as $rand): ?>
@@ -171,6 +189,7 @@ $cacheFiles = glob(__DIR__ . '/../cache/*.cache') ?: [];
                     <td><?= $rand['luna'] ?></td>
                     <td><?= $rand['nr_judete'] ?></td>
                     <td><?= number_format($rand['total_someri']) ?></td>
+                    <!-- Complet daca cel putin 40 de judete au date -->
                     <td><?= $rand['nr_judete'] >= 40 ? '✅ Complet' : '⚠️ Incomplet' ?></td>
                 </tr>
                 <?php endforeach; ?>

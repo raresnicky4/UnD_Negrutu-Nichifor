@@ -1,18 +1,264 @@
+﻿
+
+/* ====== style.css ====== */
+* {
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background-color: #f0f2f5;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+}
+
+h1 {
+    text-align: center;
+    color: #1a202c;
+    margin-bottom: 25px;
+    font-size: 28px;
+}
+
+h2 {
+    color: #1a202c;
+    font-size: 20px;
+    margin-bottom: 15px;
+}
+
+.filtre {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    align-items: flex-end;
+}
+
+.filtru-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filtre label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #4a5568;
+}
+
+.filtre select,
+.filtre input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+    width: 140px;
+    font-size: 14px;
+}
+
+.btn-aplica {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    height: 41px;
+    transition: 0.2s;
+    text-decoration: none;
+    display: inline-block;
+    line-height: 21px;
+}
+
+.btn-aplica:hover {
+    background: #2563eb;
+}
+
+.vizualizare-split {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    height: 500px;
+    margin-bottom: 20px;
+}
+
+.partea-stanga {
+    width: 50%;
+    height: 100%;
+}
+
+.partea-dreapta {
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+#harta {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    z-index: 1;
+}
+
+.view-toggles {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.btn-view {
+    padding: 10px 20px;
+    border: 2px solid #3b82f6;
+    background: white;
+    color: #3b82f6;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.btn-view.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-view:hover:not(.active) {
+    background: #eff6ff;
+}
+
+.grafic-box {
+    flex: 1;
+    width: 100%;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    min-height: 0;
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.hidden {
+    display: none !important;
+}
+
+.export-box {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+}
+
+.btn-export {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-csv {
+    background: #10b981;
+}
+
+.btn-csv:hover {
+    background: #059669;
+}
+
+.btn-svg {
+    background: #0ea5e9;
+}
+
+.btn-svg:hover {
+    background: #0284c7;
+}
+
+.btn-pdf {
+    background:     #ef4444;
+}
+.btn-json {
+    background-color: #9f0bf5;
+    color: white;
+}
+.btn-json:hover {
+    background-color: #9d06d9;
+}
+.btn-pdf:hover {
+    background: #dc2626;
+}
+
+.admin-sectiune {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+}
+
+.mesaj-succes {
+    background: #d1fae5;
+    color: #065f46;
+    padding: 12px 20px;
+    border-radius: 6px;
+    margin-bottom: 20px;
+    border: 1px solid #6ee7b7;
+}
+
+@media (max-width: 768px) {
+    .vizualizare-split {
+        flex-direction: column;
+        height: auto;
+    }
+
+    .partea-stanga,
+    .partea-dreapta {
+        width: 100%;
+        height: 400px;
+    }
+
+    .filtre {
+        flex-direction: column;
+    }
+
+    .filtre select,
+    .filtre input {
+        width: 100%;
+    }
+}
+
+
+/* ====== app.js ====== */
 let harta;
 let grafic;
 let graficPie;
 let graficVarste;
-let graficEducatie;
-let graficComparatie;
-let judeteComparate = [];
-const TOATE_JUDETELE = [
-    'ALBA', 'ARAD', 'ARGES', 'BACAU', 'BIHOR', 'BISTRITA NASAUD', 'BOTOSANI',
-    'BRAILA', 'BRASOV', 'BUZAU', 'CALARASI', 'CARAS SEVERIN', 'CLUJ', 'CONSTANTA',
-    'COVASNA', 'DAMBOVITA', 'DOLJ', 'GALATI', 'GIURGIU', 'GORJ', 'HARGHITA',
-    'HUNEDOARA', 'IALOMITA', 'IASI', 'ILFOV', 'MARAMURES', 'MEHEDINTI', 'MURES',
-    'NEAMT', 'OLT', 'PRAHOVA', 'SALAJ', 'SATU MARE', 'SIBIU', 'SUCEAVA',
-    'TELEORMAN', 'TIMIS', 'TULCEA', 'VALCEA', 'VASLUI', 'VRANCEA', 'MUNICIPIUL BUCURESTI'
-];
 let dateCurente = [];
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -25,7 +271,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }).setView([45.9, 25.0], 6);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
+        attribution: 'Â© OpenStreetMap contributors'
     }).addTo(harta);
 
     const ctx = document.getElementById('graficSomaj').getContext('2d');
@@ -35,7 +281,7 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Șomeri pe Județe' } },
+            plugins: { title: { display: true, text: 'È˜omeri pe JudeÈ›e' } },
             scales: {
                 y: { beginAtZero: true },
                 x: {
@@ -57,7 +303,7 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Distribuție Urban vs Rural' } }
+            plugins: { title: { display: true, text: 'DistribuÈ›ie Urban vs Rural' } }
         }
     });
 
@@ -71,44 +317,9 @@ document.addEventListener("DOMContentLoaded", function() {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Distribuție pe Grupe de Vârstă' } },
+            plugins: { title: { display: true, text: 'DistribuÈ›ie pe Grupe de VÃ¢rstÄƒ' } },
             scales: { y: { beginAtZero: true } }
         }
-    });
-
-    const ctxEducatie = document.getElementById('graficEducatie').getContext('2d');
-    graficEducatie = new Chart(ctxEducatie, {
-        type: 'bar',
-        data: {
-            labels: ['Fără studii', 'Primar', 'Gimnazial', 'Liceal', 'Postliceal', 'Profesional', 'Universitar'],
-            datasets: []
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Distribuție pe Nivel de Educație' } },
-            scales: { y: { beginAtZero: true } }
-        }
-    });
-
-    const ctxComp = document.getElementById('graficComparatie').getContext('2d');
-    graficComparatie = new Chart(ctxComp, {
-        type: 'bar',
-        data: { labels: [], datasets: [] },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { title: { display: true, text: 'Comparație între Județe' } },
-            scales: { y: { beginAtZero: true } }
-        }
-    });
-
-    const selComp = document.getElementById('compara-judet');
-    TOATE_JUDETELE.forEach(j => {
-        const opt = document.createElement('option');
-        opt.value = j;
-        opt.textContent = j;
-        selComp.appendChild(opt);
     });
 });
 
@@ -116,15 +327,11 @@ function schimbaGrafic(tip, btn) {
     document.getElementById('container-bar').classList.add('hidden');
     document.getElementById('container-pie').classList.add('hidden');
     document.getElementById('container-varste').classList.add('hidden');
-    document.getElementById('container-educatie').classList.add('hidden');
-    document.getElementById('container-comparatie').classList.add('hidden');
     document.querySelectorAll('.btn-view').forEach(el => el.classList.remove('active'));
     btn.classList.add('active');
     if (tip === 'bar') document.getElementById('container-bar').classList.remove('hidden');
     else if (tip === 'pie') document.getElementById('container-pie').classList.remove('hidden');
     else if (tip === 'varste') document.getElementById('container-varste').classList.remove('hidden');
-    else if (tip === 'educatie') document.getElementById('container-educatie').classList.remove('hidden');
-    else if (tip === 'comparatie') document.getElementById('container-comparatie').classList.remove('hidden');
 }
 
 function aplicaFiltre() {
@@ -134,51 +341,38 @@ function aplicaFiltre() {
     const lunaStop  = document.getElementById('filtru-luna-stop').value;
     const anStop    = document.getElementById('filtru-an-stop').value;
     const mediu     = document.getElementById('filtru-mediu').value;
-    const varsta    = document.getElementById('filtru-varsta').value;
-    const educatie  = document.getElementById('filtru-educatie').value;
-    const sex       = document.getElementById('filtru-sex').value;
 
     let url = `api/statistici.php?an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
     if (judet) url += `&judet=${judet}`;
     if (mediu) url += `&mediu=${mediu}`;
-    if (sex) url += `&sex=${sex}`;
 
-    document.querySelector('.btn-aplica').textContent = 'Se încarcă...';
+    document.querySelector('.btn-aplica').textContent = 'Se Ã®ncarcÄƒ...';
     document.querySelector('.btn-aplica').disabled = true;
 
     fetch(url)
         .then(response => response.json())
         .then(data => {
             dateCurente = data;
-            actualizeazaInterfata(data, varsta, educatie);
-            if (judeteComparate.length > 0) deseneazaComparatie();
+            actualizeazaInterfata(data);
         })
         .catch(() => alert("Eroare la aducerea datelor!"))
         .finally(() => {
-            document.querySelector('.btn-aplica').textContent = 'Aplică Filtrele';
+            document.querySelector('.btn-aplica').textContent = 'AplicÄƒ Filtrele';
             document.querySelector('.btn-aplica').disabled = false;
         });
 }
 
-function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
+function actualizeazaInterfata(date) {
     let someriPeJudet = {};
     let urban = 0, rural = 0;
     let varste = [0, 0, 0, 0, 0, 0];
-    let educatie = [0, 0, 0, 0, 0, 0, 0];
 
     date.forEach(rand => {
         let j = rand.judet.toUpperCase();
         if (j === 'MUN. BUCURESTI') j = 'MUNICIPIUL BUCURESTI';
         if (j === 'TOTAL') return;
         if (!someriPeJudet[j]) someriPeJudet[j] = 0;
-
-        if (varstaFiltru && rand[varstaFiltru] !== undefined) {
-            someriPeJudet[j] += parseInt(rand[varstaFiltru]) || 0;
-        } else if (educatieFiltru && rand[educatieFiltru] !== undefined) {
-            someriPeJudet[j] += parseInt(rand[educatieFiltru]) || 0;
-        } else {
-            someriPeJudet[j] += parseInt(rand.numar_someri_filtrat ?? rand.numar_someri) || 0;
-        }
+        someriPeJudet[j] += parseInt(rand.numar_someri_filtrat ?? rand.numar_someri) || 0;
 
         urban += parseInt(rand.urban) || 0;
         rural += parseInt(rand.rural) || 0;
@@ -189,14 +383,6 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
         varste[3] += parseInt(rand.varsta_40_49) || 0;
         varste[4] += parseInt(rand.varsta_50_55) || 0;
         varste[5] += parseInt(rand.varsta_peste55) || 0;
-
-        educatie[0] += parseInt(rand.edu_fara_studii) || 0;
-        educatie[1] += parseInt(rand.edu_primar) || 0;
-        educatie[2] += parseInt(rand.edu_gimnazial) || 0;
-        educatie[3] += parseInt(rand.edu_liceal) || 0;
-        educatie[4] += parseInt(rand.edu_postliceal) || 0;
-        educatie[5] += parseInt(rand.edu_profesional) || 0;
-        educatie[6] += parseInt(rand.edu_universitar) || 0;
     });
 
     const judeteOrdonate = [
@@ -211,11 +397,9 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
     const judete = judeteOrdonate.filter(j => someriPeJudet[j] !== undefined);
     const valori = judete.map(j => someriPeJudet[j]);
 
-    const labelGrafic = varstaFiltru ? `Șomeri - ${document.getElementById('filtru-varsta').options[document.getElementById('filtru-varsta').selectedIndex].text}` : 'Număr Total Șomeri';
-
     grafic.data.labels = judete;
     grafic.data.datasets = [{
-        label: labelGrafic,
+        label: 'NumÄƒr Total È˜omeri',
         data: valori,
         backgroundColor: 'rgba(59, 130, 246, 0.7)',
         borderColor: 'rgba(59, 130, 246, 1)',
@@ -231,7 +415,7 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
     graficPie.update();
 
     graficVarste.data.datasets = [{
-        label: 'Număr Șomeri',
+        label: 'NumÄƒr È˜omeri',
         data: varste,
         backgroundColor: [
             'rgba(59,130,246,0.7)', 'rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)',
@@ -240,17 +424,6 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
         borderWidth: 1
     }];
     graficVarste.update();
-
-    graficEducatie.data.datasets = [{
-        label: 'Număr Șomeri',
-        data: educatie,
-        backgroundColor: [
-            'rgba(59,130,246,0.7)', 'rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)',
-            'rgba(239,68,68,0.7)', 'rgba(139,92,246,0.7)', 'rgba(236,72,153,0.7)', 'rgba(14,165,233,0.7)'
-        ],
-        borderWidth: 1
-    }];
-    graficEducatie.update();
 
     const coordonate = {
         "ALBA": [46.07, 23.57], "ARAD": [46.18, 21.31], "ARGES": [44.85, 24.87],
@@ -275,74 +448,8 @@ function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
         if (coordonate[j]) {
             L.marker(coordonate[j])
                 .addTo(harta)
-                .bindPopup(`<b>${j}</b><br>Șomeri: ${someriPeJudet[j].toLocaleString()}`);
+                .bindPopup(`<b>${j}</b><br>È˜omeri: ${someriPeJudet[j].toLocaleString()}`);
         }
-    });
-}
-
-function adaugaComparatie() {
-    const jd = document.getElementById('compara-judet').value;
-    if (!jd) return;
-    if (dateCurente.length === 0) {
-        alert('Apasă întâi „Aplică Filtrele" ca să încarci datele!');
-        return;
-    }
-    if (judeteComparate.includes(jd)) {
-        alert('Județul „' + jd + '" e deja în comparație!');
-        return;
-    }
-    judeteComparate.push(jd);
-    deseneazaComparatie();
-}
-
-function stergeComparatie(jd) {
-    judeteComparate = judeteComparate.filter(x => x !== jd);
-    deseneazaComparatie();
-}
-
-function deseneazaComparatie() {
-    const select = document.getElementById('compara-criteriu');
-    const criteriu = select.value;
-    const numeCriteriu = select.options[select.selectedIndex].text;
-    const esteRata = (criteriu === 'rata_somaj');
-
-    const valori = judeteComparate.map(jd => {
-        let suma = 0, nr = 0;
-        dateCurente.forEach(rand => {
-            let j = rand.judet.toUpperCase();
-            if (j === 'MUN. BUCURESTI') j = 'MUNICIPIUL BUCURESTI';
-            if (j === jd) {
-                suma += parseFloat(rand[criteriu]) || 0;
-                nr++;
-            }
-        });
-        let val = (esteRata && nr > 0) ? (suma / nr) : suma;
-        return Math.round(val * 100) / 100;
-    });
-
-    graficComparatie.data.labels = judeteComparate.slice();
-    graficComparatie.data.datasets = [{
-        label: numeCriteriu,
-        data: valori,
-        backgroundColor: 'rgba(16, 185, 129, 0.7)',
-        borderColor: 'rgba(16, 185, 129, 1)',
-        borderWidth: 1
-    }];
-    graficComparatie.options.plugins.title.text = 'Comparație Județe - ' + numeCriteriu;
-    graficComparatie.update();
-
-    const lista = document.getElementById('lista-comparatie');
-    lista.innerHTML = '';
-    judeteComparate.forEach(jd => {
-        const chip = document.createElement('span');
-        chip.style.cssText = 'background:#1e40af; color:white; padding:5px 10px; border-radius:14px; font-size:0.85em; display:inline-flex; align-items:center; gap:6px;';
-        chip.textContent = jd;
-        const x = document.createElement('span');
-        x.textContent = '✕';
-        x.style.cssText = 'cursor:pointer; font-weight:bold;';
-        x.onclick = () => stergeComparatie(jd);
-        chip.appendChild(x);
-        lista.appendChild(chip);
     });
 }
 
@@ -354,12 +461,10 @@ function exportCSV() {
     const lunaStop  = document.getElementById('filtru-luna-stop').value;
     const judet     = document.getElementById('filtru-judet').value;
     const mediu     = document.getElementById('filtru-mediu').value;
-    const sex       = document.getElementById('filtru-sex').value;
 
     let url = `api/export.php?format=csv&an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
     if (judet) url += `&judet=${judet}`;
     if (mediu) url += `&mediu=${mediu}`;
-    if (sex) url += `&sex=${sex}`;
     window.location.href = url;
 }
 
@@ -367,8 +472,7 @@ function exportSVG() {
     const vizActiva = document.querySelector('.btn-view.active').innerText;
     let idCanvas = 'graficSomaj';
     if (vizActiva.includes('Mediu')) idCanvas = 'graficPie';
-    else if (vizActiva.includes('Vârstă')) idCanvas = 'graficVarste';
-    else if (vizActiva.includes('Educație')) idCanvas = 'graficEducatie';
+    else if (vizActiva.includes('VÃ¢rstÄƒ')) idCanvas = 'graficVarste';
 
     const canvas = document.getElementById(idCanvas);
     const imgURI = canvas.toDataURL("image/png");
@@ -425,14 +529,13 @@ function exportPDF() {
         }, 200);
     }
 
+    // Extrage datele din graficele existente
     const labelsBar = grafic.data.labels;
     const datasetsBar = grafic.data.datasets;
     const labelsPie = graficPie.data.labels;
     const datasetsPie = graficPie.data.datasets;
     const labelsVarste = graficVarste.data.labels;
     const datasetsVarste = graficVarste.data.datasets;
-    const labelsEducatie = graficEducatie.data.labels;
-    const datasetsEducatie = graficEducatie.data.datasets;
 
     graficPeCanvas('bar', labelsBar, datasetsBar, 'Someri pe Judete', (img1) => {
         doc.setFontSize(16);
@@ -451,19 +554,11 @@ function exportPDF() {
                 doc.text('Distributie pe Grupe de Varsta', 10, 15);
                 doc.addImage(img3, 'JPEG', 10, 25, 270, 150);
 
-                doc.addPage();
-                graficPeCanvas('bar', labelsEducatie, datasetsEducatie, 'Distributie pe Nivel de Educatie', (img4) => {
-                    doc.setFontSize(16);
-                    doc.text('Distributie pe Nivel de Educatie', 10, 15);
-                    doc.addImage(img4, 'JPEG', 10, 25, 270, 150);
-
-                    doc.save('raport_und.pdf');
-                });
+                doc.save('raport_und.pdf');
             });
         });
     });
 }
-
 function exportJSON() {
     const anStart   = document.getElementById('filtru-an-start').value;
     const lunaStart = document.getElementById('filtru-luna-start').value;
@@ -471,11 +566,9 @@ function exportJSON() {
     const lunaStop  = document.getElementById('filtru-luna-stop').value;
     const judet     = document.getElementById('filtru-judet').value;
     const mediu     = document.getElementById('filtru-mediu').value;
-    const sex       = document.getElementById('filtru-sex').value;
 
     let url = `api/export.php?format=json&an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
     if (judet) url += `&judet=${judet}`;
     if (mediu) url += `&mediu=${mediu}`;
-    if (sex) url += `&sex=${sex}`;
     window.location.href = url;
 }

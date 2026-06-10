@@ -1,0 +1,171 @@
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #eef2f6;
+    margin: 0;
+    padding: 20px;
+}
+
+.container {
+    max-width: 1400px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+}
+
+h1 {
+    text-align: center;
+    color: #1a202c;
+    margin-bottom: 25px;
+    font-size: 28px;
+}
+
+.filtre {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 25px;
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.filtru-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filtre label {
+    font-weight: 600;
+    font-size: 13px;
+    color: #4a5568;
+}
+
+.filtre select, .filtre input {
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid #cbd5e0;
+    width: 150px;
+    font-size: 14px;
+}
+
+.btn-aplica {
+    background: #3b82f6;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    height: 40px;
+    margin-top: auto;
+    transition: 0.2s;
+}
+
+.btn-aplica:hover {
+    background: #2563eb;
+}
+
+.vizualizare-split {
+    display: flex;
+    flex-direction: row;
+    gap: 25px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.partea-stanga {
+    flex: 1;
+    width: 50%;
+}
+
+.partea-dreapta {
+    flex: 1;
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+}
+
+#harta {
+    width: 100%;
+    height: 550px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    z-index: 1;
+}
+
+.view-toggles {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.btn-view {
+    padding: 10px 20px;
+    border: 2px solid #3b82f6;
+    background: white;
+    color: #3b82f6;
+    border-radius: 30px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.btn-view.active {
+    background: #3b82f6;
+    color: white;
+}
+
+.btn-view:hover:not(.active) {
+    background: #eff6ff;
+}
+
+.grafic-box {
+    width: 100%;
+    height: 490px;
+    background: white;
+    border-radius: 8px;
+    border: 1px solid #cbd5e0;
+    padding: 15px;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hidden {
+    display: none !important;
+}
+
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+.export-box {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    margin-top: 30px;
+    border-top: 1px solid #e2e8f0;
+    padding-top: 20px;
+}
+
+.btn-export {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    color: white;
+    font-weight: bold;
+    transition: 0.2s;
+}
+
+.btn-csv { background: #10b981; } .btn-csv:hover { background: #059669; }
+.btn-svg { background: #0ea5e9; } .btn-svg:hover { background: #0284c7; }
+.btn-pdf { background: #ef4444; } .btn-pdf:hover { background: #dc2626; }

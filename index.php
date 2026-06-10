@@ -55,6 +55,19 @@ require_once __DIR__ . '/config/config.php';
             </select>
         </div>
         <div class="filtru-item">
+            <label>Nivel Educație:</label>
+            <select id="filtru-educatie">
+                <option value="">Toate</option>
+                <option value="edu_fara_studii">Fără studii</option>
+                <option value="edu_primar">Primar</option>
+                <option value="edu_gimnazial">Gimnazial</option>
+                <option value="edu_liceal">Liceal</option>
+                <option value="edu_postliceal">Postliceal</option>
+                <option value="edu_profesional">Profesional</option>
+                <option value="edu_universitar">Universitar</option>
+            </select>
+        </div>
+        <div class="filtru-item">
             <label>Sex:</label>
             <select id="filtru-sex">
                 <option value="">Toate</option>
@@ -77,6 +90,7 @@ require_once __DIR__ . '/config/config.php';
                 <button class="btn-view active" onclick="schimbaGrafic('bar', this)">Grafic Județe</button>
                 <button class="btn-view" onclick="schimbaGrafic('pie', this)">Distribuție Mediu</button>
                 <button class="btn-view" onclick="schimbaGrafic('varste', this)">Grupe Vârstă</button>
+                <button class="btn-view" onclick="schimbaGrafic('educatie', this)">Nivel Educație</button>
             </div>
 
             <div id="container-bar" class="grafic-box">
@@ -89,6 +103,10 @@ require_once __DIR__ . '/config/config.php';
 
             <div id="container-varste" class="grafic-box hidden">
                 <canvas id="graficVarste"></canvas>
+            </div>
+
+            <div id="container-educatie" class="grafic-box hidden">
+                <canvas id="graficEducatie"></canvas>
             </div>
         </div>
     </div>

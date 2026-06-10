@@ -2,6 +2,7 @@ let harta;
 let grafic;
 let graficPie;
 let graficVarste;
+let graficEducatie;
 let dateCurente = [];
 
 document.addEventListener("DOMContentLoaded", function() {
@@ -64,17 +65,34 @@ document.addEventListener("DOMContentLoaded", function() {
             scales: { y: { beginAtZero: true } }
         }
     });
+
+    const ctxEducatie = document.getElementById('graficEducatie').getContext('2d');
+    graficEducatie = new Chart(ctxEducatie, {
+        type: 'bar',
+        data: {
+            labels: ['Fără studii', 'Primar', 'Gimnazial', 'Liceal', 'Postliceal', 'Profesional', 'Universitar'],
+            datasets: []
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { title: { display: true, text: 'Distribuție pe Nivel de Educație' } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
 });
 
 function schimbaGrafic(tip, btn) {
     document.getElementById('container-bar').classList.add('hidden');
     document.getElementById('container-pie').classList.add('hidden');
     document.getElementById('container-varste').classList.add('hidden');
+    document.getElementById('container-educatie').classList.add('hidden');
     document.querySelectorAll('.btn-view').forEach(el => el.classList.remove('active'));
     btn.classList.add('active');
     if (tip === 'bar') document.getElementById('container-bar').classList.remove('hidden');
     else if (tip === 'pie') document.getElementById('container-pie').classList.remove('hidden');
     else if (tip === 'varste') document.getElementById('container-varste').classList.remove('hidden');
+    else if (tip === 'educatie') document.getElementById('container-educatie').classList.remove('hidden');
 }
 
 function aplicaFiltre() {
@@ -85,6 +103,7 @@ function aplicaFiltre() {
     const anStop    = document.getElementById('filtru-an-stop').value;
     const mediu     = document.getElementById('filtru-mediu').value;
     const varsta    = document.getElementById('filtru-varsta').value;
+    const educatie  = document.getElementById('filtru-educatie').value;
     const sex       = document.getElementById('filtru-sex').value;
 
     let url = `api/statistici.php?an_start=${anStart}&luna_start=${lunaStart}&an_stop=${anStop}&luna_stop=${lunaStop}`;
@@ -99,7 +118,7 @@ function aplicaFiltre() {
         .then(response => response.json())
         .then(data => {
             dateCurente = data;
-            actualizeazaInterfata(data, varsta);
+            actualizeazaInterfata(data, varsta, educatie);
         })
         .catch(() => alert("Eroare la aducerea datelor!"))
         .finally(() => {
@@ -108,10 +127,11 @@ function aplicaFiltre() {
         });
 }
 
-function actualizeazaInterfata(date, varstaFiltru = '') {
+function actualizeazaInterfata(date, varstaFiltru = '', educatieFiltru = '') {
     let someriPeJudet = {};
     let urban = 0, rural = 0;
     let varste = [0, 0, 0, 0, 0, 0];
+    let educatie = [0, 0, 0, 0, 0, 0, 0];
 
     date.forEach(rand => {
         let j = rand.judet.toUpperCase();
@@ -121,6 +141,8 @@ function actualizeazaInterfata(date, varstaFiltru = '') {
 
         if (varstaFiltru && rand[varstaFiltru] !== undefined) {
             someriPeJudet[j] += parseInt(rand[varstaFiltru]) || 0;
+        } else if (educatieFiltru && rand[educatieFiltru] !== undefined) {
+            someriPeJudet[j] += parseInt(rand[educatieFiltru]) || 0;
         } else {
             someriPeJudet[j] += parseInt(rand.numar_someri_filtrat ?? rand.numar_someri) || 0;
         }
@@ -134,6 +156,14 @@ function actualizeazaInterfata(date, varstaFiltru = '') {
         varste[3] += parseInt(rand.varsta_40_49) || 0;
         varste[4] += parseInt(rand.varsta_50_55) || 0;
         varste[5] += parseInt(rand.varsta_peste55) || 0;
+
+        educatie[0] += parseInt(rand.edu_fara_studii) || 0;
+        educatie[1] += parseInt(rand.edu_primar) || 0;
+        educatie[2] += parseInt(rand.edu_gimnazial) || 0;
+        educatie[3] += parseInt(rand.edu_liceal) || 0;
+        educatie[4] += parseInt(rand.edu_postliceal) || 0;
+        educatie[5] += parseInt(rand.edu_profesional) || 0;
+        educatie[6] += parseInt(rand.edu_universitar) || 0;
     });
 
     const judeteOrdonate = [
@@ -177,6 +207,17 @@ function actualizeazaInterfata(date, varstaFiltru = '') {
         borderWidth: 1
     }];
     graficVarste.update();
+
+    graficEducatie.data.datasets = [{
+        label: 'Număr Șomeri',
+        data: educatie,
+        backgroundColor: [
+            'rgba(59,130,246,0.7)', 'rgba(16,185,129,0.7)', 'rgba(245,158,11,0.7)',
+            'rgba(239,68,68,0.7)', 'rgba(139,92,246,0.7)', 'rgba(236,72,153,0.7)', 'rgba(14,165,233,0.7)'
+        ],
+        borderWidth: 1
+    }];
+    graficEducatie.update();
 
     const coordonate = {
         "ALBA": [46.07, 23.57], "ARAD": [46.18, 21.31], "ARGES": [44.85, 24.87],
@@ -228,6 +269,7 @@ function exportSVG() {
     let idCanvas = 'graficSomaj';
     if (vizActiva.includes('Mediu')) idCanvas = 'graficPie';
     else if (vizActiva.includes('Vârstă')) idCanvas = 'graficVarste';
+    else if (vizActiva.includes('Educație')) idCanvas = 'graficEducatie';
 
     const canvas = document.getElementById(idCanvas);
     const imgURI = canvas.toDataURL("image/png");
@@ -290,6 +332,8 @@ function exportPDF() {
     const datasetsPie = graficPie.data.datasets;
     const labelsVarste = graficVarste.data.labels;
     const datasetsVarste = graficVarste.data.datasets;
+    const labelsEducatie = graficEducatie.data.labels;
+    const datasetsEducatie = graficEducatie.data.datasets;
 
     graficPeCanvas('bar', labelsBar, datasetsBar, 'Someri pe Judete', (img1) => {
         doc.setFontSize(16);
@@ -308,7 +352,14 @@ function exportPDF() {
                 doc.text('Distributie pe Grupe de Varsta', 10, 15);
                 doc.addImage(img3, 'JPEG', 10, 25, 270, 150);
 
-                doc.save('raport_und.pdf');
+                doc.addPage();
+                graficPeCanvas('bar', labelsEducatie, datasetsEducatie, 'Distributie pe Nivel de Educatie', (img4) => {
+                    doc.setFontSize(16);
+                    doc.text('Distributie pe Nivel de Educatie', 10, 15);
+                    doc.addImage(img4, 'JPEG', 10, 25, 270, 150);
+
+                    doc.save('raport_und.pdf');
+                });
             });
         });
     });

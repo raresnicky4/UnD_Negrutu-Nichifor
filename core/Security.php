@@ -1,10 +1,16 @@
 <?php
+// Clasa care se ocupa cu validarea si sanitizarea inputurilor utilizatorului
 class Security {
+
+    // Curata un string de taguri HTML si caractere periculoase - protectie XSS
     public static function sanitize(string $input): string {
         return htmlspecialchars(strip_tags(trim($input)), ENT_QUOTES, 'UTF-8');
     }
 
+    // Valideaza toti parametrii filtrelor primiti din URL
+    // Valorile invalide sunt inlocuite cu null
     public static function validateFilters(array $params): array {
+        // Liste albe cu valorile permise pentru judet, mediu si sex
         $allowed_judete = [
             'ALBA', 'ARAD', 'ARGES', 'BACAU', 'BIHOR', 'BISTRITA-NASAUD', 'BOTOSANI',
             'BRAILA', 'BRASOV', 'BUZAU', 'CALARASI', 'CARAS-SEVERIN', 'CLUJ', 'CONSTANTA',
@@ -19,6 +25,7 @@ class Security {
 
         $judet = strtoupper(trim($params['judet'] ?? ''));
 
+        // Returneaza array cu valorile validate - null pentru cele invalide
         return [
             'judet'      => in_array($judet, $allowed_judete) ? $judet : null,
             'mediu'      => in_array(strtolower($params['mediu'] ?? ''), $allowed_mediu) ? strtolower($params['mediu']) : null,

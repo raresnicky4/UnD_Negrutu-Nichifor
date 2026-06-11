@@ -24,14 +24,14 @@ require_once __DIR__ . '/config/config.php';
             <label>De la:</label>
             <div style="display:flex; gap:6px;">
                 <input type="number" id="filtru-luna-start" min="1" max="12" value="1" placeholder="Luna" style="width:65px;">
-                <input type="number" id="filtru-an-start" min="2020" max="2026" value="2023" placeholder="An" style="width:75px;">
+                <input type="number" id="filtru-an-start" min="2018" max="2026" value="2023" placeholder="An" style="width:75px;">
             </div>
         </div>
         <div class="filtru-item">
             <label>Până la:</label>
             <div style="display:flex; gap:6px;">
                 <input type="number" id="filtru-luna-stop" min="1" max="12" value="12" placeholder="Luna" style="width:65px;">
-                <input type="number" id="filtru-an-stop" min="2020" max="2026" value="2024" placeholder="An" style="width:75px;">
+                <input type="number" id="filtru-an-stop" min="2018" max="2026" value="2024" placeholder="An" style="width:75px;">
             </div>
         </div>
         <div class="filtru-item">
@@ -81,8 +81,21 @@ require_once __DIR__ . '/config/config.php';
     </div>
 
     <div class="vizualizare-split" style="height: 600px;">
-        <div class="partea-stanga">
+        <div class="partea-stanga" style="position: relative;">
             <div id="harta"></div>
+
+            <div class="harta-legenda" style="position: absolute; bottom: 20px; left: 20px; z-index: 1000; background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 14px;">
+                <h4 style="margin: 0 0 8px 0; font-size: 15px;">Top Județe Șomaj</h4>
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png" width="14" style="margin-right: 8px;"> Scăzut (Top 35%)
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png" width="14" style="margin-right: 8px;"> Mediu (36% - 75%)
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png" width="14" style="margin-right: 8px;"> Ridicat (Peste 75%)
+                </div>
+            </div>
         </div>
 
         <div class="partea-dreapta">
@@ -155,7 +168,7 @@ require_once __DIR__ . '/config/config.php';
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="public/js/app.js?v=4"></script>
+<script src="public/js/app.js?v=7"></script>
 <a href="admin/" style="position:fixed; bottom:10px; right:10px; background:#1e40af; color:white; padding:8px 14px; border-radius:8px; text-decoration:none; font-size:0.85em; opacity:0.7;">⚙️ Admin</a>
 </body>
 </html>

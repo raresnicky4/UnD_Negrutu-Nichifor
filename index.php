@@ -7,7 +7,7 @@ require_once __DIR__ . '/config/config.php';
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Platforma UnD - Statistici Somaj</title>
+    <title>Platforma UnD - Statistici Șomaj</title>
     <!-- CSS pentru harta Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <!-- CSS propriu al aplicatiei -->
@@ -17,14 +17,14 @@ require_once __DIR__ . '/config/config.php';
 
 <!-- Containerul principal al paginii -->
 <div class="container" id="continut-pdf">
-    <h1>Platforma UnD - Analiza Somaj Romania</h1>
+    <h1>Platforma UnD - Analiză Șomaj România</h1>
 
     <!-- Bara de filtre - nu apare in exportul PDF -->
     <div class="filtre" data-html2canvas-ignore>
 
         <!-- Filtru dupa judet - utilizatorul scrie numele judetului -->
         <div class="filtru-item">
-            <label>Judet:</label>
+            <label>Județ:</label>
             <input type="text" id="filtru-judet" placeholder="Ex: IASI">
         </div>
 
@@ -33,16 +33,16 @@ require_once __DIR__ . '/config/config.php';
             <label>De la:</label>
             <div style="display:flex; gap:6px;">
                 <input type="number" id="filtru-luna-start" min="1" max="12" value="1" placeholder="Luna" style="width:65px;">
-                <input type="number" id="filtru-an-start" min="2020" max="2026" value="2023" placeholder="An" style="width:75px;">
+                <input type="number" id="filtru-an-start" min="2018" max="2026" value="2023" placeholder="An" style="width:75px;">
             </div>
         </div>
 
         <!-- Filtru interval sfarsit - luna si an de stop -->
         <div class="filtru-item">
-            <label>Pana la:</label>
+            <label>Până la:</label>
             <div style="display:flex; gap:6px;">
                 <input type="number" id="filtru-luna-stop" min="1" max="12" value="12" placeholder="Luna" style="width:65px;">
-                <input type="number" id="filtru-an-stop" min="2020" max="2026" value="2024" placeholder="An" style="width:75px;">
+                <input type="number" id="filtru-an-stop" min="2018" max="2026" value="2024" placeholder="An" style="width:75px;">
             </div>
         </div>
 
@@ -58,7 +58,7 @@ require_once __DIR__ . '/config/config.php';
 
         <!-- Filtru grupa varsta - afecteaza coloana afisata in grafic pe client -->
         <div class="filtru-item">
-            <label>Grupa Varsta:</label>
+            <label>Grupă Vârstă:</label>
             <select id="filtru-varsta">
                 <option value="">Toate</option>
                 <option value="varsta_sub25">Sub 25 ani</option>
@@ -72,10 +72,10 @@ require_once __DIR__ . '/config/config.php';
 
         <!-- Filtru nivel educatie - afecteaza coloana afisata in grafic pe client -->
         <div class="filtru-item">
-            <label>Nivel Educatie:</label>
+            <label>Nivel Educație:</label>
             <select id="filtru-educatie">
                 <option value="">Toate</option>
-                <option value="edu_fara_studii">Fara studii</option>
+                <option value="edu_fara_studii">Fără studii</option>
                 <option value="edu_primar">Primar</option>
                 <option value="edu_gimnazial">Gimnazial</option>
                 <option value="edu_liceal">Liceal</option>
@@ -97,16 +97,30 @@ require_once __DIR__ . '/config/config.php';
 
         <!-- Buton care declanseaza apelul Ajax catre api/statistici.php -->
         <div class="filtru-item" style="justify-content: flex-end;">
-            <button class="btn-aplica" onclick="aplicaFiltre()">Aplica Filtrele</button>
+            <button class="btn-aplica" onclick="aplicaFiltre()">Aplică Filtrele</button>
         </div>
     </div>
 
     <!-- Layout split: harta stanga, grafice dreapta -->
     <div class="vizualizare-split" style="height: 600px;">
 
-        <!-- Partea stanga - harta Leaflet cu markeri pe judete -->
-        <div class="partea-stanga">
+        <!-- Partea stanga - harta Leaflet cu markeri colorati pe judete -->
+        <div class="partea-stanga" style="position: relative;">
             <div id="harta"></div>
+
+            <!-- Legenda harta - explica culorile markerilor in functie de rata somajului -->
+            <div class="harta-legenda" style="position: absolute; bottom: 20px; left: 20px; z-index: 1000; background: rgba(255, 255, 255, 0.9); padding: 10px; border-radius: 5px; box-shadow: 0 0 10px rgba(0,0,0,0.2); font-family: sans-serif; font-size: 14px;">
+                <h4 style="margin: 0 0 8px 0; font-size: 15px;">Top Județe Șomaj</h4>
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png" width="14" style="margin-right: 8px;"> Scăzut (Top 35%)
+                </div>
+                <div style="display: flex; align-items: center; margin-bottom: 6px;">
+                    <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-gold.png" width="14" style="margin-right: 8px;"> Mediu (36% - 75%)
+                </div>
+                <div style="display: flex; align-items: center;">
+                    <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png" width="14" style="margin-right: 8px;"> Ridicat (Peste 75%)
+                </div>
+            </div>
         </div>
 
         <!-- Partea dreapta - butoane navigare grafice + containerele graficelor -->
@@ -114,11 +128,11 @@ require_once __DIR__ . '/config/config.php';
 
             <!-- Butoane pentru comutarea intre grafice - nu apar in PDF -->
             <div class="view-toggles" data-html2canvas-ignore>
-                <button class="btn-view active" onclick="schimbaGrafic('bar', this)">Grafic Judete</button>
-                <button class="btn-view" onclick="schimbaGrafic('pie', this)">Distributie Mediu</button>
-                <button class="btn-view" onclick="schimbaGrafic('varste', this)">Grupe Varsta</button>
-                <button class="btn-view" onclick="schimbaGrafic('educatie', this)">Nivel Educatie</button>
-                <button class="btn-view" onclick="schimbaGrafic('comparatie', this)">Comparatie Judete</button>
+                <button class="btn-view active" onclick="schimbaGrafic('bar', this)">Grafic Județe</button>
+                <button class="btn-view" onclick="schimbaGrafic('pie', this)">Distribuție Mediu</button>
+                <button class="btn-view" onclick="schimbaGrafic('varste', this)">Grupe Vârstă</button>
+                <button class="btn-view" onclick="schimbaGrafic('educatie', this)">Nivel Educație</button>
+                <button class="btn-view" onclick="schimbaGrafic('comparatie', this)">Comparație Județe</button>
             </div>
 
             <!-- Grafic bara - numarul de someri pe fiecare judet -->
@@ -149,32 +163,32 @@ require_once __DIR__ . '/config/config.php';
 
                     <!-- Dropdown cu criteriile de comparatie disponibile -->
                     <select id="compara-criteriu" onchange="deseneazaComparatie()">
-                        <option value="numar_someri">Total someri</option>
-                        <option value="rata_somaj">Rata somajului (%)</option>
+                        <option value="numar_someri">Total șomeri</option>
+                        <option value="rata_somaj">Rata șomajului (%)</option>
                         <option value="someri_femei">Femei</option>
-                        <option value="someri_barbati">Barbati</option>
+                        <option value="someri_barbati">Bărbați</option>
                         <option value="urban">Urban</option>
                         <option value="rural">Rural</option>
-                        <option value="edu_fara_studii">Educatie: Fara studii</option>
-                        <option value="edu_primar">Educatie: Primar</option>
-                        <option value="edu_gimnazial">Educatie: Gimnazial</option>
-                        <option value="edu_liceal">Educatie: Liceal</option>
-                        <option value="edu_postliceal">Educatie: Postliceal</option>
-                        <option value="edu_profesional">Educatie: Profesional</option>
-                        <option value="edu_universitar">Educatie: Universitar</option>
-                        <option value="varsta_sub25">Varsta: Sub 25</option>
-                        <option value="varsta_25_29">Varsta: 25-29</option>
-                        <option value="varsta_30_39">Varsta: 30-39</option>
-                        <option value="varsta_40_49">Varsta: 40-49</option>
-                        <option value="varsta_50_55">Varsta: 50-55</option>
-                        <option value="varsta_peste55">Varsta: Peste 55</option>
+                        <option value="edu_fara_studii">Educație: Fără studii</option>
+                        <option value="edu_primar">Educație: Primar</option>
+                        <option value="edu_gimnazial">Educație: Gimnazial</option>
+                        <option value="edu_liceal">Educație: Liceal</option>
+                        <option value="edu_postliceal">Educație: Postliceal</option>
+                        <option value="edu_profesional">Educație: Profesional</option>
+                        <option value="edu_universitar">Educație: Universitar</option>
+                        <option value="varsta_sub25">Vârstă: Sub 25</option>
+                        <option value="varsta_25_29">Vârstă: 25-29</option>
+                        <option value="varsta_30_39">Vârstă: 30-39</option>
+                        <option value="varsta_40_49">Vârstă: 40-49</option>
+                        <option value="varsta_50_55">Vârstă: 50-55</option>
+                        <option value="varsta_peste55">Vârstă: Peste 55</option>
                     </select>
 
                     <!-- Dropdown cu lista de judete - populat dinamic din app.js -->
                     <select id="compara-judet"></select>
 
                     <!-- Buton care adauga judetul selectat in graficul de comparatie -->
-                    <button class="btn-aplica" onclick="adaugaComparatie()">+ Adauga judet</button>
+                    <button class="btn-aplica" onclick="adaugaComparatie()">+ Adaugă județ</button>
                 </div>
 
                 <!-- Lista cu judetele adaugate la comparatie -->
@@ -190,10 +204,10 @@ require_once __DIR__ . '/config/config.php';
 
     <!-- Butoane export - nu apar in PDF -->
     <div class="export-box" data-html2canvas-ignore>
-        <button class="btn-export btn-csv" onclick="exportCSV()">Exporta CSV</button>
-        <button class="btn-export btn-svg" onclick="exportSVG()">Exporta SVG</button>
-        <button class="btn-export btn-json" onclick="exportJSON()">Exporta JSON</button>
-        <button class="btn-export btn-pdf" onclick="exportPDF()">Exporta PDF</button>
+        <button class="btn-export btn-csv" onclick="exportCSV()">Exportă CSV</button>
+        <button class="btn-export btn-svg" onclick="exportSVG()">Exportă SVG</button>
+        <button class="btn-export btn-json" onclick="exportJSON()">Exportă JSON</button>
+        <button class="btn-export btn-pdf" onclick="exportPDF()">Exportă PDF</button>
     </div>
 </div>
 
@@ -203,10 +217,10 @@ require_once __DIR__ . '/config/config.php';
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <!-- Libraria jsPDF pentru exportul PDF -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<!-- Logica principala a aplicatiei - v=4 forteaza reincarcarea din cache browser -->
-<script src="public/js/app.js?v=4"></script>
+<!-- Logica principala a aplicatiei - v=7 forteaza reincarcarea din cache browser -->
+<script src="public/js/app.js?v=7"></script>
 
 <!-- Buton fix Admin in coltul dreapta-jos -->
-<a href="admin/" style="position:fixed; bottom:10px; right:10px; background:#1e40af; color:white; padding:8px 14px; border-radius:8px; text-decoration:none; font-size:0.85em; opacity:0.7;">Admin</a>
+<a href="admin/" style="position:fixed; bottom:10px; right:10px; background:#1e40af; color:white; padding:8px 14px; border-radius:8px; text-decoration:none; font-size:0.85em; opacity:0.7;">⚙️ Admin</a>
 </body>
 </html>

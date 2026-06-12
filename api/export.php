@@ -1,13 +1,17 @@
 <?php
+// Incarca dependintele necesare pentru validare si interogare BD
 require_once __DIR__ . '/../core/Security.php';
 require_once __DIR__ . '/../models/StatisticiModel.php';
 
+// Valideaza filtrele din URL si preia datele din baza de date
 $filters = Security::validateFilters($_GET);
 $model = new StatisticiModel();
 $data = $model->filtreaza($filters);
 
+// Citeste formatul dorit din URL, implicit csv
 $format = isset($_GET['format']) ? strtolower(trim($_GET['format'])) : 'csv';
 
+// Export CSV - seteaza headerele si scrie datele rand cu rand
 if ($format === 'csv') {
     header('Content-Type: text/csv; charset=utf-8');
     header('Content-Disposition: attachment; filename="raport_somaj.csv"');
@@ -30,6 +34,7 @@ if ($format === 'csv') {
     exit;
 }
 
+// Export JSON - seteaza headerele si returneaza datele ca JSON formatat
 if ($format === 'json') {
     header('Content-Type: application/json; charset=utf-8');
     header('Content-Disposition: attachment; filename="raport_somaj.json"');

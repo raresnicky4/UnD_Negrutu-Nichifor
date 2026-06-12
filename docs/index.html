@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UnD – Unemployment Data Visualizer – Raport Tehnic</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: 'Georgia', serif;
+            font-size: 16px;
+            line-height: 1.8;
+            color: #1a1a2e;
+            background: #f7f9fc;
+        }
+
+        header {
+            background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 60%, #2563eb 100%);
+            color: white;
+            padding: 60px 40px 50px;
+            text-align: center;
+        }
+
+        header h1 {
+            font-size: 2.6em;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        header p.subtitle {
+            font-size: 1.1em;
+            opacity: 0.85;
+            margin-bottom: 20px;
+        }
+
+        header .meta {
+            font-size: 0.95em;
+            opacity: 0.75;
+            line-height: 2;
+        }
+
+        nav {
+            background: #1e3a8a;
+            padding: 12px 40px;
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            justify-content: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        nav a {
+            color: #93c5fd;
+            text-decoration: none;
+            font-size: 0.9em;
+            font-family: 'Segoe UI', sans-serif;
+            transition: color 0.2s;
+        }
+
+        nav a:hover { color: white; }
+
+        main {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px 60px;
+        }
+
+        section {
+            background: white;
+            border-radius: 10px;
+            padding: 36px 40px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+        }
+
+        h2 {
+            font-size: 1.5em;
+            color: #1e40af;
+            border-left: 4px solid #2563eb;
+            padding-left: 14px;
+            margin-bottom: 20px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        h3 {
+            font-size: 1.15em;
+            color: #1e3a8a;
+            margin: 20px 0 10px;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        p { margin-bottom: 14px; }
+
+        ul, ol {
+            margin: 10px 0 16px 24px;
+        }
+
+        li { margin-bottom: 6px; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            font-size: 0.95em;
+        }
+
+        th {
+            background: #1e40af;
+            color: white;
+            padding: 10px 14px;
+            text-align: left;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        td {
+            padding: 9px 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        tr:nth-child(even) { background: #f8fafc; }
+
+        code {
+            background: #f1f5f9;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            font-family: 'Courier New', monospace;
+            color: #1e40af;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 3px;
+        }
+
+        .req-box {
+            border-left: 3px solid #2563eb;
+            background: #eff6ff;
+            padding: 12px 18px;
+            margin: 12px 0;
+            border-radius: 0 6px 6px 0;
+        }
+
+        .req-box strong {
+            color: #1e40af;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        footer {
+            text-align: center;
+            padding: 30px;
+            color: #64748b;
+            font-size: 0.9em;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        @media (max-width: 600px) {
+            header { padding: 40px 20px; }
+            header h1 { font-size: 1.8em; }
+            section { padding: 24px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>UnD – Unemployment Data Visualizer</h1>
+    <p class="subtitle">Instrument Web de vizualizare și analiză a datelor despre șomajul din România</p>
+    <div class="meta">
+        <div><strong>Autori:</strong> Nichifor Rareș &amp; Negruțu Robert</div>
+        <div><strong>Instituție:</strong> Facultatea de Informatică, Universitatea „Alexandru Ioan Cuza" Iași</div>
+        <div><strong>Disciplina:</strong> Tehnologii Web – 2025/2026</div>
+        <div><strong>Repositoriu:</strong> <a href="https://github.com/raresnicky4/UnD_Negrutu-Nichifor" style="color:#93c5fd;">github.com/raresnicky4/UnD_Negrutu-Nichifor</a></div>
+    </div>
+</header>
+
+<nav>
+    <a href="#introducere">Introducere</a>
+    <a href="#cerinte">Cerințe</a>
+    <a href="#arhitectura">Arhitectură</a>
+    <a href="#date">Date</a>
+    <a href="#interfata">Interfață</a>
+    <a href="#securitate">Securitate</a>
+    <a href="#tehnologii">Tehnologii</a>
+    <a href="#concluzie">Concluzie</a>
+</nav>
+
+<main>
+
+    <!-- 1. Introducere -->
+    <section id="introducere">
+        <h2>1. Introducere</h2>
+        <p>
+            UnD (Unemployment Data Visualizer) este o aplicație Web dezvoltată în cadrul disciplinei
+            Tehnologii Web, cu scopul de a oferi un instrument interactiv de vizualizare și analiză
+            a datelor publice despre șomajul din România.
+        </p>
+        <p>
+            Datele sunt importate automat de pe portalul open data al Guvernului României
+            (<a href="https://data.gov.ro" target="_blank">data.gov.ro</a>) și acoperă o perioadă
+            de <strong>29 de luni</strong> (ianuarie 2023 – mai 2025), depășind cerința minimă de 16 luni.
+        </p>
+        <p>
+            Aplicația permite compararea multi-criterială a statisticilor pe județe, nivel de educație,
+            grupe de vârstă, mediu urban/rural, sex și perioadă de timp, cu posibilitatea exportului
+            în formatele CSV, JSON, SVG și PDF.
+        </p>
+    </section>
+
+    <!-- 2. Cerinte -->
+    <section id="cerinte">
+        <h2>2. Specificarea Cerințelor</h2>
+
+        <h3>2.1 Cerințe Funcționale</h3>
+
+        <div class="req-box">
+            <strong>RF-01 – Import date automat</strong>
+            <p>Sistemul importă automat datele despre șomaj de pe data.gov.ro pentru fiecare lună
+            din intervalul selectat, dacă acestea nu există deja în baza de date.</p>
+        </div>
+
+        <div class="req-box">
+            <strong>RF-02 – Filtrare multi-criterială</strong>
+            <p>Utilizatorul poate filtra datele după: județ, interval de timp (lună/an start – lună/an stop),
+            mediu (urban/rural), grupă de vârstă, nivel de educație și sex.</p>
+        </div>
+
+        <div class="req-box">
+            <strong>RF-03 – Vizualizări grafice</strong>
+            <p>Sistemul oferă minimum 5 tipuri de vizualizări: grafic bare pe județe, grafic tort
+            urban vs. rural, grafic bare pe grupe de vârstă, grafic bare pe nivel de educație
+            și grafic de comparație între județe selectate.</p>
+        </div>
+
+        <div class="req-box">
+            <strong>RF-04 – Hartă interactivă</strong>
+            <p>Datele sunt vizualizate cartografic pe o hartă interactivă a României, cu markeri
+            pe fiecare județ și popup cu numărul de șomeri.</p>
+        </div>
+
+        <div class="req-box">
+            <strong>RF-05 – Export date</strong>
+            <p>Statisticile și vizualizările pot fi exportate în formatele CSV, JSON, SVG și PDF.</p>
+        </div>
+
+        <div class="req-box">
+            <strong>RF-06 – Modul administrare</strong>
+            <p>Există un modul de administrare protejat cu parolă care permite: vizualizarea
+            statisticilor generale, ștergerea cache-ului și reimportul datelor pentru o lună specifică.</p>
+        </div>
+
+        <div class="req-box">
+            <strong>RF-07 – Caching</strong>
+            <p>Sistemul implementează un mecanism propriu de caching bazat pe fișiere pentru
+            optimizarea performanței interogărilor frecvente.</p>
+        </div>
+
+        <h3>2.2 Cerințe Non-Funcționale</h3>
+
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Cerință</th><th>Detalii</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>RNF-01</td><td>Performanță</td><td>Răspuns la interogări sub 2 secunde datorită caching-ului</td></tr>
+                <tr><td>RNF-02</td><td>Securitate</td><td>Protecție SQL Injection și XSS prin prepared statements și htmlspecialchars</td></tr>
+                <tr><td>RNF-03</td><td>Responsivitate</td><td>Interfața se adaptează la dispozitive mobile și desktop</td></tr>
+                <tr><td>RNF-04</td><td>Validare HTML/CSS</td><td>Codul HTML și CSS este valid conform specificațiilor W3C</td></tr>
+                <tr><td>RNF-05</td><td>Compatibilitate</td><td>Funcționează în browsere moderne (Chrome, Firefox, Edge)</td></tr>
+                <tr><td>RNF-06</td><td>Disponibilitate date</td><td>Minim 16 luni de date importate (actual: 29 luni)</td></tr>
+            </tbody>
+        </table>
+
+        <h3>2.3 Interacțiunea cu Utilizatorul</h3>
+        <p>Utilizatorul interacționează cu aplicația prin:</p>
+        <ul>
+            <li>Selectarea filtrelor din bara de filtrare (județ, perioadă, mediu, vârstă, educație, sex)</li>
+            <li>Apăsarea butonului „Aplică Filtrele" care declanșează un apel Ajax asincron</li>
+            <li>Comutarea între tipurile de grafice prin butoanele de navigare</li>
+            <li>Interacțiunea cu harta (zoom, click pe markeri pentru detalii)</li>
+            <li>Adăugarea județelor în graficul de comparație</li>
+            <li>Exportul datelor prin butoanele CSV, JSON, SVG, PDF</li>
+            <li>Accesarea panoului de administrare prin butonul Admin din colțul paginii</li>
+        </ul>
+    </section>
+
+    <!-- 3. Arhitectura -->
+    <section id="arhitectura">
+        <h2>3. Arhitectura Aplicației</h2>
+
+        <h3>3.1 Structura generală</h3>
+        <p>
+            Aplicația urmează o arhitectură <strong>client-server</strong> bazată pe servicii Web REST.
+            Backend-ul este implementat în PHP fără framework, iar comunicarea cu clientul se face
+            exclusiv prin apeluri Ajax asincrone.
+        </p>
+
+        <h3>3.2 Structura directorului</h3>
+        <table>
+            <thead>
+                <tr><th>Director/Fișier</th><th>Rol</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><code>index.php</code></td><td>Pagina principală a aplicației</td></tr>
+                <tr><td><code>admin/index.php</code></td><td>Panoul de administrare</td></tr>
+                <tr><td><code>api/statistici.php</code></td><td>Endpoint REST pentru date statistici</td></tr>
+                <tr><td><code>api/export.php</code></td><td>Endpoint REST pentru export CSV/JSON</td></tr>
+                <tr><td><code>core/Database.php</code></td><td>Singleton pentru conexiunea la baza de date</td></tr>
+                <tr><td><code>core/Cache.php</code></td><td>Mecanism de caching bazat pe fișiere</td></tr>
+                <tr><td><code>core/DataImporter.php</code></td><td>Import date de pe data.gov.ro</td></tr>
+                <tr><td><code>core/Security.php</code></td><td>Validare și sanitizare input</td></tr>
+                <tr><td><code>models/StatisticiModel.php</code></td><td>Model pentru interogări baza de date</td></tr>
+                <tr><td><code>public/js/app.js</code></td><td>Logica client (grafice, hartă, filtre, export)</td></tr>
+                <tr><td><code>public/css/style.css</code></td><td>Stiluri CSS responsive</td></tr>
+            </tbody>
+        </table>
+
+        <h3>3.3 Fluxul de date</h3>
+        <ol>
+            <li>Utilizatorul selectează filtrele și apasă „Aplică Filtrele"</li>
+            <li><code>app.js</code> construiește URL-ul și face un apel <code>fetch()</code> asincron</li>
+            <li><code>api/statistici.php</code> validează parametrii prin <code>Security::validateFilters()</code></li>
+            <li><code>DataImporter</code> verifică și importă datele lipsă de pe data.gov.ro</li>
+            <li><code>StatisticiModel</code> execută interogarea SQL cu prepared statements</li>
+            <li>Rezultatul este stocat în cache și returnat ca JSON</li>
+            <li><code>app.js</code> actualizează toate graficele și harta cu datele primite</li>
+        </ol>
+    </section>
+
+    <!-- 4. Date -->
+    <section id="date">
+        <h2>4. Structura și Proveniența Datelor</h2>
+
+        <h3>4.1 Sursa datelor</h3>
+        <p>
+            Datele provin de pe portalul open data al Guvernului României:
+            <a href="https://data.gov.ro/dataset?q=somaj" target="_blank">data.gov.ro/dataset?q=somaj</a>.
+            Pentru fiecare lună sunt disponibile 4 fișiere CSV:
+        </p>
+        <ul>
+            <li><strong>rata</strong> – numărul total de șomeri, femei, bărbați și rata șomajului pe județe</li>
+            <li><strong>medii</strong> – distribuția urban/rural</li>
+            <li><strong>varste</strong> – distribuția pe grupe de vârstă</li>
+            <li><strong>nivel-educatie</strong> – distribuția pe nivel de educație</li>
+        </ul>
+
+        <h3>4.2 Structura bazei de date</h3>
+        <p>Baza de date MySQL conține tabela principală <code>statistici</code> cu următoarele coloane:</p>
+        <table>
+            <thead>
+                <tr><th>Coloană</th><th>Tip</th><th>Descriere</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>id</td><td>INT AUTO_INCREMENT</td><td>Identificator unic</td></tr>
+                <tr><td>judet</td><td>VARCHAR(100)</td><td>Numele județului</td></tr>
+                <tr><td>anul</td><td>INT</td><td>Anul înregistrării</td></tr>
+                <tr><td>luna</td><td>INT</td><td>Luna înregistrării (1-12)</td></tr>
+                <tr><td>numar_someri</td><td>INT</td><td>Total șomeri</td></tr>
+                <tr><td>someri_femei</td><td>INT</td><td>Șomeri femei</td></tr>
+                <tr><td>someri_barbati</td><td>INT</td><td>Șomeri bărbați</td></tr>
+                <tr><td>urban / rural</td><td>INT</td><td>Distribuție mediu</td></tr>
+                <tr><td>varsta_sub25 ... varsta_peste55</td><td>INT</td><td>Distribuție pe vârste</td></tr>
+                <tr><td>edu_fara_studii ... edu_universitar</td><td>INT</td><td>Distribuție pe educație</td></tr>
+                <tr><td>rata_somaj</td><td>FLOAT</td><td>Rata șomajului (%)</td></tr>
+            </tbody>
+        </table>
+
+        <h3>4.3 Perioada acoperită</h3>
+        <p>
+            <span class="badge">Ianuarie 2023</span>
+            <span class="badge">–</span>
+            <span class="badge">Mai 2025</span>
+            <span class="badge">29 luni</span>
+            <span class="badge">42 județe</span>
+            <span class="badge">~1218 înregistrări</span>
+        </p>
+    </section>
+
+    <!-- 5. Interfata -->
+    <section id="interfata">
+        <h2>5. Interfața Web</h2>
+
+        <h3>5.1 Principii de design</h3>
+        <p>
+            Interfața respectă principiile designului Web responsiv, folosind CSS Flexbox și Grid
+            cu media queries pentru adaptarea la diferite dimensiuni de ecran. Paleta de culori
+            este bazată pe albastru (<code>#1e40af</code>) pentru consistență vizuală.
+        </p>
+
+        <h3>5.2 Componente principale</h3>
+        <ul>
+            <li><strong>Bara de filtrare</strong> – conține 7 filtre: județ, interval de timp, mediu, grupă vârstă, nivel educație, sex</li>
+            <li><strong>Harta interactivă</strong> – Leaflet.js cu tile-uri OpenStreetMap, markeri pe toate județele</li>
+            <li><strong>Grafice</strong> – 5 tipuri realizate cu Chart.js: bare județe, tort urban/rural, bare vârste, bare educație, comparație județe</li>
+            <li><strong>Butoane export</strong> – CSV, JSON, SVG, PDF</li>
+            <li><strong>Buton Admin</strong> – acces la panoul de administrare</li>
+        </ul>
+
+        <h3>5.3 Motivații design</h3>
+        <p>
+            S-a ales un design simplu și clar, cu accent pe lizibilitate și funcționalitate.
+            Layout-ul split (hartă stânga, grafice dreapta) permite utilizatorului să vadă
+            simultan distribuția geografică și statisticile numerice. Butoanele rotunjite
+            pentru navigarea graficelor oferă o experiență de utilizare intuitivă.
+        </p>
+    </section>
+
+    <!-- 6. Securitate -->
+    <section id="securitate">
+        <h2>6. Securitate</h2>
+
+        <h3>6.1 Protecție SQL Injection</h3>
+        <p>
+            Toate interogările SQL folosesc <strong>prepared statements</strong> cu parametri
+            legați prin PDO. Niciun input al utilizatorului nu este interpolat direct în SQL.
+        </p>
+
+        <h3>6.2 Protecție XSS</h3>
+        <p>
+            Toate datele afișate în HTML sunt sanitizate cu <code>htmlspecialchars()</code>
+            cu flagul <code>ENT_QUOTES</code>. Inputurile sunt curățate cu <code>strip_tags()</code>
+            și <code>trim()</code> prin clasa <code>Security</code>.
+        </p>
+
+        <h3>6.3 Validarea inputurilor</h3>
+        <p>
+            Clasa <code>Security::validateFilters()</code> validează toți parametrii primiți:
+            județele sunt verificate față de o listă albă, mediul și sexul sunt validate
+            față de valori permise, iar anii și lunile sunt validate ca întregi în intervale corecte.
+        </p>
+
+        <h3>6.4 Autentificare admin</h3>
+        <p>
+            Panoul de administrare este protejat prin verificare parolă la fiecare acces POST,
+            fără sesiuni persistente, ceea ce elimină riscul de session hijacking.
+        </p>
+    </section>
+
+    <!-- 7. Tehnologii -->
+    <section id="tehnologii">
+        <h2>7. Tehnologii Utilizate</h2>
+
+        <table>
+            <thead>
+                <tr><th>Tehnologie</th><th>Versiune</th><th>Rol</th></tr>
+            </thead>
+            <tbody>
+                <tr><td>PHP</td><td>8.x</td><td>Backend, procesare date, API REST</td></tr>
+                <tr><td>MySQL</td><td>8.0</td><td>Stocare date statistici</td></tr>
+                <tr><td>PDO</td><td>–</td><td>Acces baza de date cu prepared statements</td></tr>
+                <tr><td>HTML5</td><td>–</td><td>Structura interfetei (valid W3C)</td></tr>
+                <tr><td>CSS3</td><td>–</td><td>Stilizare responsiva (valid W3C)</td></tr>
+                <tr><td>JavaScript ES6+</td><td>–</td><td>Logica client, Ajax, grafice</td></tr>
+                <tr><td>Leaflet.js</td><td>1.9.4</td><td>Harta interactiva</td></tr>
+                <tr><td>Chart.js</td><td>latest</td><td>Grafice interactive</td></tr>
+                <tr><td>jsPDF</td><td>2.5.1</td><td>Export PDF</td></tr>
+                <tr><td>OpenStreetMap</td><td>–</td><td>Tile-uri harta</td></tr>
+                <tr><td>data.gov.ro API</td><td>CKAN 3</td><td>Sursa de date publice</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <!-- 8. Concluzie -->
+    <section id="concluzie">
+        <h2>8. Concluzie</h2>
+        <p>
+            Aplicația UnD implementează toate cerințele obligatorii ale temei de proiect:
+            vizualizare multi-criterială a datelor despre șomaj pe peste 16 luni,
+            minim 3 tipuri de grafice plus vizualizare cartografică, export în formatele
+            CSV, SVG și PDF, modul de administrare, arhitectură REST cu Ajax asincron,
+            protecție XSS și SQL Injection, design responsiv și caching propriu.
+        </p>
+        <p>
+            Suplimentar față de cerințele minime, aplicația oferă export JSON, filtru după
+            sex și nivel de educație, grafic de comparație multi-județ cu criterii multiple
+            și un mecanism robust de import automat al datelor cu detectare automată a
+            delimiter-ului CSV și normalizare a numelor de județe.
+        </p>
+        <p>
+            Codul sursă este disponibil pe GitHub sub licența MIT:
+            <a href="https://github.com/raresnicky4/UnD_Negrutu-Nichifor" target="_blank">
+                github.com/raresnicky4/UnD_Negrutu-Nichifor
+            </a>
+        </p>
+    </section>
+
+</main>
+
+<footer>
+    <p>UnD – Unemployment Data Visualizer &copy; 2026 Nichifor Rareș &amp; Negruțu Robert</p>
+    <p>Facultatea de Informatică, UAIC Iași &nbsp;|&nbsp; Tehnologii Web 2025/2026</p>
+    <p>Licențiat sub <a href="../LICENSE">MIT License</a> &nbsp;|&nbsp;
+    Conținut disponibil sub <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a></p>
+</footer>
+
+</body>
+</html>
